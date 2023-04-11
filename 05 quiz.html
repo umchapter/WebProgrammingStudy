@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script lang="javascript">
+            // 1 ~ 999까지 합계
+            var sum_1 = 0;
+            for(var i=1; i<1000; i++) {
+                sum_1 += i;
+            }
+
+            document.writeln("1부터 999까지의 합계는 " + sum_1 + "<br>");
+
+            // 3부터 100까지 홀수의 합계
+            var sum_2 = 0;
+            for(var i=3; i<=100; i+=2) {
+                sum_2 += i;
+            }
+
+            document.writeln("3부터 100까지의 홀수의 합계는 " + sum_2 + "<br>");
+
+            // 1234부터 4567까지 378의 배수 합 
+            var sum_3 = 0;
+            for(var i=1234; i<=4567; i++) {
+                if(i % 378 == 0) {
+                    sum_3 += i;
+                } else {
+                    continue;
+                }
+            }
+
+            document.writeln("1234부터 4567까지의 378의 배수의 합계는 " + sum_3 + "<br>");
+
+            // 1부터 1000까지 소수 출력
+            var array = [0,0];
+            var sum_4 = 0;
+
+            for(var i=2; i<1001; i++) {
+                array[i] = 1;
+            }
+            
+            for(var j=2; j<1001; j++) {
+                if(array[j] == 0) {
+                    continue;
+                } else {
+                    for(var k=2; j*k<1001; k++) {
+                        array[j*k] = 0;
+                    }
+                }
+            }
+            
+            for(var l=0; l<array.length; l++) {
+                if(array[l] == 0) {
+                    continue;
+                } else {
+                    document.writeln(l + " ");
+                    sum_4 += l;
+                }
+            }
+            document.writeln("<br>" + "1부터 1000까지 소수의 합계는 " + sum_4);
+
+        </script>
+
+    <title>05 quiz</title>
+</head>
+<body>
+    
+</body>
+</html>

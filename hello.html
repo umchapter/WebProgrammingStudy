@@ -4,9 +4,29 @@
     <META charset="UTF-8">
     <META http-equiv="X-UA-Compatible" content="IE=edge">
     <META name="viewport" content="width=device-width, initial-scale=1.0">
-    <TITLE>Document</TITLE>
+
+        <script lang="javascript">
+            function mouseOver(obj) {
+                obj.src = "images/2장/media/banana.png";
+            }
+            function mouseOut(obj) {
+                obj.src = "images/2장/media/apple.png";
+            }
+        </script>
+
+    <TITLE>Hello World!</TITLE>
 </HEAD>
 <BODY>
-    
+    <h1>글자 <br> 글자</h1>
+    <h2>글자</h2>
+    <h6>글자</h6>
+
+    <div class="mydiv1">요기요</div>
+    <img src="images/2장/media/apple.png" width="400" height="500" onmouseover="mouseOver(this)" onmouseleave="mouseOut(this)">
+    <pre>
+        나보기가 역겨워
+        가실 때에는
+        말 없이 고이 보내드리오리다.
+    </pre>
 </BODY>
 </HTML>
