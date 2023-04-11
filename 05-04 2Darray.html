@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script lang="javascript">
+            //함수 선언부
+            function display(img) {
+                for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                        document.writeln(img[i][j]);
+                    }document.writeln("<br>");
+                }document.writeln("<br>");
+            }
+
+            // 밝게
+            function brighter(img, num) {
+                var img2 = Array.from(Array(ROW), () => new Array(COL));
+                for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                        if(img[i][j] + num > 255) {
+                            img2[i][j] = 255;
+                        }else {
+                            img2[i][j] = img[i][j] + num;
+                        }
+                        
+                    }
+                }
+                display(img2);
+
+            }
+
+            // 어둡게
+            function darker(img, num) {
+                var img2 = Array.from(Array(ROW), () => new Array(COL));
+                for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                        if(img[i][j] - num < 0) {
+                            img2[i][j] = 0;
+                        }else {
+                            img2[i][j] = img[i][j]- num;
+                        }
+                        
+                    }
+            }
+
+                display(img2);
+            }
+
+            // 완전 흑백 처리
+            function blackOrWihte(img) {
+                var img2 = Array.from(Array(ROW), () => new Array(COL));
+                for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                        if(img[i][j] > 255/2) {
+                            img2[i][j] = 255;
+                        }else {
+                            img2[i][j] = 0;
+                        }
+                        
+                    }
+                }
+
+                display(img2);
+            }
+
+            // 이미지 반전
+            function reverse(img) {
+                var img2 = Array.from(Array(ROW), () => new Array(COL));
+                for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                            img2[i][j] = 255 - img[i][j];                        
+                    }
+                }
+                
+                display(img2);
+            }
+
+            //전역 변수부
+            var ary2;
+            var ROW = 3, COL = 4; // 3행 4열 크기의 이미지
+
+            // 메모리 확보
+            ary2 = new Array(ROW);
+            for(var i=0; i<ROW; i++) {
+                ary2[i] = new Array(COL);
+            }
+                
+        </script>
+
+        <script lang="javascript">
+            // 메인 코드부
+            // 이미지 파일 -> 메모리 로딩
+            for(var i=0; i<ROW; i++) {
+                    for(var j=0; j<COL; j++) {
+                        // [i][j] 값 읽음
+                        ary2[i][j] = Math.floor(Math.random() * 256);
+                    }
+                }
+
+            display(ary2);
+
+            brighter(ary2, 100);
+
+            darker(ary2, 100);
+
+            blackOrWihte(ary2)
+
+            reverse(ary2);
+
+
+            
+        </script>
+
+    <title>05-04 2Darray</title>
+</head>
+<body>
+    
+</body>
+</html>

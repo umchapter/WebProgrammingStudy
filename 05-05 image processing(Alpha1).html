@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script lang="javascript">
+        // 함수 선언부
+        function display(img, h, w, msg) {
+            document.write(msg + "<br>")
+
+            for(var i=0; i<h; i++) {
+                for(var j=0; j<w; j++) {
+                    var space = "";
+                    if(img[i][j] < 10) {
+                        space = "00"
+                    } else if(img[i][j] < 100) {
+                        space = "0"
+                    }
+                    document.writeln(space + img[i][j] + " ");
+                }document.writeln("<br>");
+            }document.writeln("<br>");
+        }
+
+
+        // 전역 변수부
+        var inImage, outImage; // 원본과 처리결과 이미지 배열
+        var inW, inH, outW, outH; // 입출력 영상의 높이와 폭
+
+    </script>
+
+    <script lang="javascript">
+        // 메인 코드부
+        // 이미지 파일 선택, 크기 다 다름.. (GrayScale은 정사각형)
+        inW = inH = Math.floor(Math.random() * 6 + 5); // 5 ~ 10 크기 영상
+        
+        
+        // 메모리 확보
+        inImage = new Array(inH);
+        for(var i=0; i<inH; i++) {
+            inImage[i] = new Array(inW);
+        }
+
+        for(var i=0; i<inH; i++) {
+            for(var j=0; j<inW; j++) {
+                // [i][j] 값 읽음
+                inImage[i][j] = Math.floor(Math.random() * 256);
+            }
+        }
+
+        display(inImage, inH, inW, "---원본 이미지---")
+
+        // 영상 처리 알고리즘
+        // 1. 밝게 하기
+        // var value = parseInt(prompt("밝게하기", "50"));
+        // 출력 영상 메모리 확보 -> 출력 영상 크기 결정 : 알고리즘에 의존.
+        outH = inH;
+        outW = inW;
+
+        outImage = new Array(outH);
+        for(var i=0; i<outH; i++) {
+            outImage[i] = new Array(outW);
+        }
+
+        // 진짜 영상 처리 알고리즘
+        var value = 50;
+        
+        for(var i=0; i<inH; i++) {
+            for(var j=0; j<inW; j++) {
+                // [i][j] 값 읽음
+                outImage[i][j] = inImage[i][j] + value;
+            }
+        }
+
+        display(outImage, outH, outW, "---밝게 하기---");
+
+
+    </script>
+
+
+    <title>05-05 image processing(Alpha1)</title>
+</head>
+<body>
+    
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script lang="javascript">
+        // 함수 선언부
+        function display(img, msg="---원본 이미지---") {
+            document.write(msg + "<br>")
+            h = img.length;
+            w = img[0].length;
+
+            for(var i=0; i<h; i++) {
+                for(var j=0; j<w; j++) {
+                    var space = "";
+                    if(img[i][j] < 10) {
+                        space = "00"
+                    } else if(img[i][j] < 100) {
+                        space = "0"
+                    }
+                    document.writeln(space + img[i][j] + " ");
+                }document.writeln("<br>");
+            }document.writeln("<br>");
+        }
+
+        // 밝기 조절 알고리즘
+        function brightnessControl(inImage, value) {
+            // 결과 배열 생성
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 밝기 조절 적용
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] + value > 255){
+                        outImage[i][j] = 255;
+                    }else if(inImage[i][j] + value < 0) {
+                        outImage[i][j] = 0;
+                    }else {
+                        outImage[i][j] = inImage[i][j] + value;
+                    }
+                }
+            }
+
+            display(outImage, "---밝기 조절---")
+        }
+
+        // 흑백 영상
+        function blackOrWihte(inImage) {
+            // 결과 배열 생성
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 흑백 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] > 255/2){
+                        outImage[i][j] = 255;
+                    }else{
+                        outImage[i][j] = 0;
+                    }
+                }
+            }
+
+            display(outImage, "---흑백 처리---")
+        }
+
+        // 반전 처리
+        function reverse(inImage) {
+            // 결과 배열 생성
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 반전 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = 255 - inImage[i][j];
+                }
+            }
+
+            display(outImage, "---반전 처리---")
+        }
+
+        // 좌우 미러링
+        function rlInversion(inImage) {
+            // 결과 배열 생성
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 좌우 미러링 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[i][outW - 1 - j]; // length는 index + 1
+                }
+            }
+
+            display(outImage, "---좌우 미러링 처리---")
+        }
+
+        // 상하 미러링
+        function udInversion(inImage) {
+            // 결과 배열 생성
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 상하 미러링 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[outH -1 - i][j]; // length는 index + 1
+                }
+            }
+
+            display(outImage, "---상하 미러링 처리---")
+        }
+        
+        // 90도 회전
+        function rotate90Degree(inImage) {
+            // 결과 배열 생성 -> 정방행렬이므로 행,열 길이 그대로 둠
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 90도 회전 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[j][(outH-1)-i]; // 변화된 행과 열 좌표 계산
+                }
+            }
+
+            display(outImage, "---90도 회전 처리---")
+        }
+
+        // 180도 회전
+        function rotate180Degree(inImage) {
+            // 결과 배열 생성 -> 정방행렬이므로 행,열 길이 그대로 둠
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 180도 회전 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[j][i]; // inImage의 행과 열 좌표 서로 바꿔주면 180도 회전
+                }
+            }
+
+            display(outImage, "---180도 회전 처리---")
+        }
+
+        // 270도 회전
+        function rotate270Degree(inImage) {
+            // 결과 배열 생성 -> 정방행렬이므로 행,열 길이 그대로 둠
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 180도 회전 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[(outH-1) - j][i]; // -90도 처리와 같음
+                }
+            }
+            display(outImage, "---270도 회전 처리---")
+        }
+
+        // 2배 축소
+        function downSize2X(inImage) {
+            // 결과 배열 생성
+            inH = inImage.length;
+            inW = inImage[0].length;
+            outH = Math.round(inH / 2);
+            outW = Math.round(inW / 2);
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 2배 축소 처리
+            if(inH%2!=0) {
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {
+                        outImage[i][j] = inImage[i*2][j*2];
+                    }
+                }
+            } else {
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {
+                        outImage[i][j] = inImage[i*2][j*2];
+                    }
+                }
+            }
+            display(outImage, "---2배 축소 처리---")
+        }
+
+        // 2배 확대
+
+        // 45도 회전
+
+
+        // 전역 변수부
+        var inImage, outImage; // 원본과 처리결과 이미지 배열
+        var inW, inH, outW, outH; // 입출력 영상의 높이와 폭
+
+    </script>
+
+    <script lang="javascript">
+        // 메인 코드부
+        // 이미지 파일 선택, 크기 다 다름.. (GrayScale은 정사각형)
+        inW = inH = Math.floor(Math.random() * 6 + 5); // 5 ~ 10 크기 영상
+        
+        
+        // 메모리 확보
+        inImage = new Array(inH);
+        for(var i=0; i<inH; i++) {
+            inImage[i] = new Array(inW);
+        }
+
+        for(var i=0; i<inH; i++) {
+            for(var j=0; j<inW; j++) {
+                // [i][j] 값 읽음
+                inImage[i][j] = Math.floor(Math.random() * 256);
+            }
+        }
+        
+        display(inImage)
+
+        // brightnessControl(inImage, 50);
+
+        // brightnessControl(inImage, -30);
+
+        // blackOrWihte(inImage);
+
+        // reverse(inImage);
+
+        // rlInversion(inImage);
+
+        // udInversion(inImage);
+
+        // rotate90Degree(inImage);
+
+        // rotate180Degree(inImage);
+
+        // rotate270Degree(inImage);
+
+        downSize2X(inImage);
+
+    </script>
+
+
+    <title>05-05 image processing(Alpha1)</title>
+</head>
+<body>
+    
+</body>
+</html>
