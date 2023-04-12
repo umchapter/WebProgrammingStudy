@@ -216,25 +216,77 @@
             }
             
             // 2배 축소 처리
-            if(inH%2!=0) {
-                for(var i=0; i<outH; i++) {
-                    for(var j=0; j<outW; j++) {
-                        outImage[i][j] = inImage[i*2][j*2];
-                    }
-                }
-            } else {
-                for(var i=0; i<outH; i++) {
-                    for(var j=0; j<outW; j++) {
-                        outImage[i][j] = inImage[i*2][j*2];
-                    }
+            for(var i=0; i<outH; i++) { // 작은 좌표 기준
+                for(var j=0; j<outW; j++) {
+                outImage[i][j] = inImage[i*2][j*2];
                 }
             }
-            display(outImage, "---2배 축소 처리---")
+            display(outImage, "---2배 축소 처리---")   
+
         }
+
 
         // 2배 확대
 
+        function upSize2X(inImage) {
+            // 결과 배열 생성
+            inH = inImage.length;
+            inW = inImage[0].length;
+            outH = inH * 2;
+            outW = inW * 2;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 2배 확대 처리
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    outImage[i*2][j*2] = inImage[i][j];
+                    outImage[i*2][(j*2)+1] = Math.ceil((inImage[i][j] + inImage[i][j+1])/2)
+                }
+            }
+
+            for(var i=1; i<outH; i+=2) {
+                for(var j=0; j<outW; j++) {
+                    if(i+1>=outH) {
+
+                    } else {
+                        outImage[i][j] = Math.ceil((outImage[i-1][j] + outImage[i+1][j])/2)
+                    }
+                }
+            }
+
+            display(outImage, "---2배 확대 처리---")
+        }
+
+
         // 45도 회전
+
+        function rotate45Degree(inImage) {
+            // 결과 배열 생성
+            const tri45 = Math.sqrt(2)/2;
+            outH = inImage.length;
+            outW = inImage[0].length;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    var newX = Math.round(tri45 * (i/2-j/2) + i/2);
+                    var newY = Math.round(tri45 * (i/2+j/2) + j/2);
+                    if(((newX>=0)&(newX<outH))&((newY>=0)&(newY<outW))){
+                        outImage[newX][newY] = inImage[i][j];
+                    }
+                }
+            }
+
+            display(outImage, "---45도 회전 처리---")
+            }
 
 
         // 전역 변수부
@@ -282,7 +334,11 @@
 
         // rotate270Degree(inImage);
 
-        downSize2X(inImage);
+        // downSize2X(inImage);
+
+        // upSize2X(inImage);
+
+        rotate45Degree(inImage);
 
     </script>
 
