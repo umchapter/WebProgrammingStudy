@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script lang="javascript">
+            // 전역 변수부
+            var inCanvas, inCtx;
+            var inFile, inImage, inH, inW; // 입력 파일, 입력 배열, 입력 폭과 높이
+            var inPaper;
+
+            // 함수 선언부
+            function init() {
+                inCanvas = document.getElementById("inCanvas"); // 캔버스에 접근
+                inCtx = inCanvas.getContext("2d"); // 도구가 들어있는 통
+            }
+
+            function openRawImage() {
+                // 선택한 RAW 데이터를 읽어서 처리하기
+                inFile = document.getElementById("inFile").files[0];
+
+                // 이미지의 폭과 높이 계산
+                // inH = inW = 256;
+                inH = inW = Math.floor(Math.sqrt(inFile.size)); // -> 정방형이기 때문에 가능
+
+                // 이미지를 불러올 메모리 확보
+                inImage = new Array(inH);
+                for(var i=0; i<inH; i++) {
+                    inImage[i] = new Array(inW);
+                }
+
+                // 캔버스 크기 조절
+                inCanvas.height = inH;
+                inCanvas.width = inW;
+
+                // RAW 파일 --> 메모리(배열)로 로딩
+                var reader = new FileReader(); // 파일 객체
+                reader.readAsBinaryString(inFile);
+                
+                reader.onload = function() { // 익명 함수
+                    var blob = reader.result; // 파일을 한 덩어리(blob)에 넣기
+                    
+                    // blob에서 한 점씩 뽑아서 2차원 배열에 넣기 -> inH*inW 만큼 반복
+                    for(var i=0; i<inH; i++) {
+                        for(var j=0; j<inW; j++) {
+                            var sPixel = (i*inH + j); // 시작 위치
+                            var ePixel = (i*inH + j) + 1; // 끝 위치
+                            inImage[i][j] = blob.slice(sPixel, ePixel).charCodeAt(0); // 한점만 뽑기 -> char를 숫자로
+                        }
+                    }
+
+                    // 입력 변수를 inPaper에 찍음             
+                    inPaper = inCtx.createImageData(inH, inW); // 빈 종이 준비
+                    for(var i=0; i<inH; i++) {
+                        for(var j=0; j<inW; j++) {
+                            var px = inImage[i][j];
+                            inPaper.data[ (i*inH + j) * 4 + 0 ] = px; // r
+                            inPaper.data[ (i*inH + j) * 4 + 1 ] = px; // g
+                            inPaper.data[ (i*inH + j) * 4 + 2 ] = px; // b
+                            inPaper.data[ (i*inH + j) * 4 + 3 ] = 255; // Alpha -> 투명도
+                        }
+                    }
+                    inCtx.putImageData(inPaper, 0, 0); // 종이를 캔버스 왼쪽 위에 붙인다
+                }
+                
+                
+            }
+            
+        </script>
+
+    <title>RAW image read</title>
+</head>
+<body onload="init()">
+    <input type="file" id="inFile" onchange="openRawImage()" />
+    <canvas id="inCanvas" height="256" width="256"
+        style="background-color: yellow;">
+    
+    </canvas>
+</body>
+</html>

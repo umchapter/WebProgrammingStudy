@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script lang="javascript">
+        // 전역 변수단
+        let inCanvas, inCtx, outCanvas, outCtx; // 캔버스 변수
+        let inFile;
+        let inImage, inH, inW; // 이미지 파일 관련 변수들
+        let outImage, outH, outW; // 출력 배열, 출력 폭과 높이
+        let inPaper; // 이미지 그리는 바탕
+
+    </script>
+
+    <script lang="javascript">
+        // 함수단
+        // 공통함수부
+        function init() { // body가 로드 되어 캔버스가 깔리면 실행되어 캔버스에 접근
+            inCanvas = document.getElementById("inCanvas");
+            inCtx = inCanvas.getContext("2d");
+
+            outCanvas = document.getElementById("outCanvas");
+            outCtx = outCanvas.getContext("2d");
+        }
+
+        function openRawImage() {
+            // input 받음
+            inFile = document.getElementById("inFile").files[0];
+            // file.size를 통해 배열 크기 구함
+            inH = inW = Math.floor(Math.sqrt(inFile.size));
+            // 배열 생성
+            inImage = new Array(inH);
+            for(var i=0; i<inH; i++) {
+                inImage[i] = new Array(inW);
+            }
+
+            // 캔버스 크기 조정
+            inCanvas.height = inH;
+            inCanvas.width = inW;
+
+            // 이미지 파일 배열에 저장
+            // 리더로 파일 읽어옴
+            var reader = new FileReader();
+            reader.readAsBinaryString(inFile);
+
+            reader.onload = function() { // 익명함수 방식
+                var blob = reader.result; // 바이너리 스트링으로 읽은 파일을 블롭에 저장
+
+                // blob에서 뽑아서 배열에 저장
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var sPixel = (i*inH + j);
+                        var ePixel = (i*inH + j) + 1;
+
+                        inImage[i][j] = blob.slice(sPixel, ePixel)
+                                                .charCodeAt(0); // 바이너리 스트링을 숫자로
+                    }
+                }
+                displayImage();
+            }
+        }
+
+        function displayImage() {
+            // 배열을 inPaper에 찍어줌
+            inPaper = inCtx.createImageData(inH, inW) // inPaper를 inCtx 도구 중 하나로 정의함
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var px = inImage[i][j]; // inImage의 픽셀값
+                        // inPaper에 들어가는 데이터의 좌표에 픽셀 등록
+                        // inPaper는 기본적으로 RGB형이므로 3차원 배열 고려
+                        // -> 배열 형태 [[[0,1, ..., 255<-Col255]<-Row0, [256,...]<-Row1, ...]<-R,
+                        //              [[0,1, ..., 255], [256,...], ...]<-G,
+                        //              [[0,1, ..., 255]Row0, [256,...], ...]<-B,
+                        //              [[0,1, ..., 255], [256,...], ...[...]]<-A]
+                        inPaper.data[(i*inH + j)*4 + 0] = px; // R 
+                        inPaper.data[(i*inH + j)*4 + 1] = px; // G
+                        inPaper.data[(i*inH + j)*4 + 2] = px; // B
+                        inPaper.data[(i*inH + j)*4 + 3] = 255; // Alpha -> 투명도
+                    }
+                }
+                // 캔버스에 올림
+                inCtx.putImageData(inPaper, 0, 0);
+
+            // 배열을 outPaper에 찍어줌
+            outPaper = outCtx.createImageData(outH, outW) // outPaper를 outCtx 도구 중 하나로 정의함
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var px = outImage[i][j]; // outImage의 픽셀값
+                        // outPaper에 들어가는 데이터의 좌표에 픽셀 등록
+                        // outPaper는 기본적으로 RGB형이므로 3차원 배열 고려
+                        // -> 배열 형태 [[[0,1, ..., 255<-Col255]<-Row0, [256,...]<-Row1, ...]<-R,
+                        //              [[0,1, ..., 255], [256,...], ...]<-G,
+                        //              [[0,1, ..., 255]Row0, [256,...], ...]<-B,
+                        //              [[0,1, ..., 255], [256,...], ...[...]]<-A]
+                        outPaper.data[(i*outH + j)*4 + 0] = px; // R 
+                        outPaper.data[(i*outH + j)*4 + 1] = px; // G
+                        outPaper.data[(i*outH + j)*4 + 2] = px; // B
+                        outPaper.data[(i*outH + j)*4 + 3] = 255; // Alpha -> 투명도
+                    }
+                }
+                // 캔버스에 올림
+                outCtx.putImageData(outPaper, 0, 0);
+        }
+
+        function selectAlgo(selectNum) {
+            switch(parseInt(selectNum.value)) {
+                case 100 : equal_image(); break;
+                case 101 : brightControl(); break;
+                case 102 : reverse_image(); break;
+            }
+        }
+
+        // 이미지 처리 함수부
+        function equal_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[i][j];
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        function brightControl() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            var value =parseInt(prompt("값", 50))
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] + value < 0){
+                        outImage[i][j] = 0;
+                    } else if (inImage[i][j] + value > 255) {
+                        outImage[i][j] = 255;
+                    } else {
+                        outImage[i][j] = inImage[i][j] + value;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+
+        }
+
+        function reverse_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = 255 - inImage[i][j];
+                }
+            }
+            //
+
+            displayImage();
+
+        }
+    </script>
+
+    <title>Image Processor Beta1</title>
+</head>
+<body onload="init()">
+    <form>
+        <div>
+            <input type="file" id="inFile" onchange="openRawImage()" />
+        </div>
+
+        <br/>
+
+        <div>
+            <select name="pixel" onchange="selectAlgo(this.form.pixel)">
+                <option value="0">처리 방법 선택</option>
+                <optgroup label="화소점 처리">
+                    <option value="100">동일영상</option>
+                    <option value="101">밝게/어둡게</option>
+                    <option value="102">색상반전</option>
+                </optgroup>
+            </select>
+        </div>
+    </form>
+
+        <br/>
+
+        <div>
+            <canvas id="inCanvas" height="400" width="300" style="background-color: yellow;">
+                <!--캔버스 기본 크기 대충 결정 어차피 이미지에 맞게 변경됨--> </canvas>
+
+            <canvas id="outCanvas" height="400" width="300" style="background-color: aqua;">
+                <!--이미지 처리된 후 결과 창--> </canvas>
+        </div>
+    
+    
+</body>
+</html>

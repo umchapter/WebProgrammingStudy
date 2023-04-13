@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script lang="javascript">
+
+
+
+        </script>
+
+    <title>canvas</title>
+</head>
+<body>
+    <canvas id="canvas1" height="400" width="300"
+        style="background-color: yellow;">
+
+    </canvas>
+
+    <script lang="javascript">
+        var canvas1 = document.getElementById("canvas1"); // 캔버스에 접근
+        var ctx1 = canvas1.getContext("2d"); // 도구가 들어있는 통
+
+        // 사각형 그리기
+        ctx1.beginPath();
+            ctx1.strokeStyle = "red"; // 물감 고르기
+
+            ctx1.rect(50, 50, 100, 70);
+            ctx1.stroke();
+            
+        ctx1.closePath();
+        
+        ctx1.beginPath();
+            ctx1.strokeStyle = "blue"; // 물감 고르기
+
+            ctx1.arc(30, 30, 10, 0, 360);
+            ctx1.stroke();
+            
+        ctx1.closePath();
+
+        ctx1.beginPath();
+            ctx1.strokeStyle = "violet"; // 물감 고르기
+
+            ctx1.moveTo(20, 330);
+            ctx1.lineTo(230, 330);
+
+            ctx1.moveTo(60, 200);
+            ctx1.lineTo(60, 370);
+            ctx1.stroke();
+            
+        ctx1.closePath();
+
+        ctx1.beginPath();
+            ctx1.strokeStyle = "black";
+            ctx1.lineWidth = 2;
+
+            ctx1.arc(60,330, 30, 0, 1.5*Math.PI, false);
+            ctx1.stroke();
+
+        ctx1.closePath();
+
+        ctx1.beginPath();
+            ctx1.strokeStyle = "white";
+            ctx1.lineWidth = 10;
+
+            ctx1.arc(60,330, 50, Math.PI/2, Math.PI, true);
+            ctx1.stroke();
+
+        ctx1.closePath();
+
+        ctx1.beginPath();
+            ctx1.strokeStyle = "black";
+            ctx1.lineWidth = 2;
+
+            ctx1.moveTo(250, 20);
+            ctx1.lineTo(240, 50);
+            ctx1.stroke();
+
+        ctx1.closePath();
+        
+        
+        
+    </script>
+</body>
+</html>

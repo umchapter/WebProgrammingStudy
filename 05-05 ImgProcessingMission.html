@@ -232,6 +232,7 @@
             // 결과 배열 생성
             inH = inImage.length;
             inW = inImage[0].length;
+
             outH = inH * 2;
             outW = inW * 2;
 
@@ -241,21 +242,18 @@
             }
 
             // 2배 확대 처리
-            for(var i=0; i<inH; i++) {
-                for(var j=0; j<inW; j++) {
-                    outImage[i*2][j*2] = inImage[i][j];
-                    outImage[i*2][(j*2)+1] = Math.ceil((inImage[i][j] + inImage[i][j+1])/2)
-                }
-            }
-
-            for(var i=1; i<outH; i+=2) {
+            for(var i=0; i<outH; i++) {
                 for(var j=0; j<outW; j++) {
-                    if(i+1>=outH) {
-
-                    } else {
-                        outImage[i][j] = Math.ceil((outImage[i-1][j] + outImage[i+1][j])/2)
+                    var newX = Math.round(i/2);
+                    var newY = Math.round(j/2);
+                    if(newX >= inH) {
+                        newX = inH -1;
                     }
-                }
+                    if(newY >= inW) {
+                        newY = inW -1;
+                    }
+                    outImage[i][j] = inImage[newX][newY];
+                }  
             }
 
             display(outImage, "---2배 확대 처리---")
@@ -274,11 +272,15 @@
             for(var i=0; i<outH; i++) {
                 outImage[i] = new Array(outW);
             }
+            // var value = document.getElementById("rotation").value;
+            var theta = Math.PI/180 * 60;
+            const sinTheta = Math.sin(60);
+            const cosTheta = Math.cos(60);
 
             for(var i=0; i<outH; i++) {
                 for(var j=0; j<outW; j++) {
-                    var newX = Math.round(tri45 * (i/2-j/2) + i/2);
-                    var newY = Math.round(tri45 * (i/2+j/2) + j/2);
+                    var newX = Math.round(cosTheta*i - sinTheta*j);
+                    var newY = Math.round(sinTheta*i + cosTheta*j);
                     if(((newX>=0)&(newX<outH))&((newY>=0)&(newY<outW))){
                         outImage[newX][newY] = inImage[i][j];
                     }
@@ -298,7 +300,9 @@
     <script lang="javascript">
         // 메인 코드부
         // 이미지 파일 선택, 크기 다 다름.. (GrayScale은 정사각형)
-        inW = inH = Math.floor(Math.random() * 6 + 5); // 5 ~ 10 크기 영상
+        inW = inH = 5;
+        
+        // Math.floor(Math.random() * 6 + 5); // 5 ~ 10 크기 영상
         
         
         // 메모리 확보

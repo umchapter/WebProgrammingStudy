@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script lang="javascript">
+
+            function openText() {
+                var txtFile = document.getElementById("selectFile").files[0];
+
+                var reader = new FileReader(); // 파일 객체
+                reader.onload = function() { // 익명 함수
+                    txtDiv.innerText = reader.result;
+                }
+                reader.readAsText(txtFile);
+            }
+
+        </script>
+
+    <title>textfile processing</title>
+</head>
+<body>
+    <input type="file" id="selectFile" onchange="openText()" />
+    <div id="txtDiv">
+
+
+    </div>
+
+
+</body>
+</html>
