@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="text/javascript">
+        // 전역 변수단
+        let inCanvas, inCtx, outCanvas, outCtx; // 캔버스 변수
+        let inFile;
+        let inImage, inH, inW; // 이미지 파일 관련 변수들
+        let outImage, outH, outW; // 출력 배열, 출력 폭과 높이
+        let inPaper; // 이미지 그리는 바탕
+        let resetIdArray = ["bwSelect", "pAreaSelect", "histSelect", "brightness", "bright_num_input", "zoom", "zoomIntSelect","rotation", "rotation_num_input"];
+
+    </script>
+
+    <script type="text/javascript">
+        // 함수단
+        // 공통함수부
+        function init() { // body가 로드 되어 캔버스가 깔리면 실행되어 캔버스에 접근
+            inCanvas = document.getElementById("inCanvas");
+            inCtx = inCanvas.getContext("2d");
+            inCtx.font = '48px roboto';
+            inCtx.fillText('Input Image', 62, inCanvas.height/2+5);
+
+            outCanvas = document.getElementById("outCanvas");
+            outCtx = outCanvas.getContext("2d");
+            outCtx.font = '48px roboto';
+            outCtx.fillText('Output Image', 48, outCanvas.height/2+5);
+        }
+
+        function openRawImage() {
+            // input 받음
+            inFile = document.getElementById("inFile").files[0];
+            // file.size를 통해 배열 크기 구함
+            inH = inW = Math.floor(Math.sqrt(inFile.size));
+            // 배열 생성
+            inImage = new Array(inH);
+            for(var i=0; i<inH; i++) {
+                inImage[i] = new Array(inW);
+            }
+
+            // 캔버스 크기 조정
+            inCanvas.height = inH;
+            inCanvas.width = inW;
+
+            // 이미지 파일 배열에 저장
+            // 리더로 파일 읽어옴
+            var reader = new FileReader();
+            reader.readAsBinaryString(inFile);
+
+            reader.onload = function() { // 익명함수 방식
+                var blob = reader.result; // 바이너리 스트링으로 읽은 파일을 블롭에 저장
+
+                // blob에서 뽑아서 배열에 저장
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var sPixel = (i*inH + j);
+                        var ePixel = (i*inH + j) + 1;
+
+                        inImage[i][j] = blob.slice(sPixel, ePixel)
+                                                .charCodeAt(0); // 바이너리 스트링을 숫자로
+                    }
+                }
+                equal_image();
+            }
+        }
+
+        function displayImage() {
+            // 배열을 inPaper에 찍어줌
+            inPaper = inCtx.createImageData(inH, inW) // inPaper를 inCtx 도구 중 하나로 정의함
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var px = inImage[i][j]; // inImage의 픽셀값
+                        // inPaper에 들어가는 데이터의 좌표에 픽셀 등록
+                        // inPaper는 기본적으로 RGB형이므로 3차원 배열 고려
+                        // -> 배열 형태 [[[0,1, ..., 255<-Col255]<-Row0, [256,...]<-Row1, ...]<-R,
+                        //              [[0,1, ..., 255], [256,...], ...]<-G,
+                        //              [[0,1, ..., 255]Row0, [256,...], ...]<-B,
+                        //              [[0,1, ..., 255], [256,...], ...[...]]<-A]
+                        inPaper.data[(i*inH + j)*4 + 0] = px; // R 
+                        inPaper.data[(i*inH + j)*4 + 1] = px; // G
+                        inPaper.data[(i*inH + j)*4 + 2] = px; // B
+                        inPaper.data[(i*inH + j)*4 + 3] = 255; // Alpha -> 투명도
+                    }
+                }
+                // 캔버스에 올림
+                inCtx.putImageData(inPaper, 0, 0);
+
+            // 배열을 outPaper에 찍어줌
+            outPaper = outCtx.createImageData(outH, outW) // outPaper를 outCtx 도구 중 하나로 정의함
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var px = outImage[i][j]; // outImage의 픽셀값
+                        // outPaper에 들어가는 데이터의 좌표에 픽셀 등록
+                        // outPaper는 기본적으로 RGB형이므로 3차원 배열 고려
+                        // -> 배열 형태 [[[0,1, ..., 255<-Col255]<-Row0, [256,...]<-Row1, ...]<-R,
+                        //              [[0,1, ..., 255], [256,...], ...]<-G,
+                        //              [[0,1, ..., 255]Row0, [256,...], ...]<-B,
+                        //              [[0,1, ..., 255], [256,...], ...[...]]<-A]
+                        outPaper.data[(i*outH + j)*4 + 0] = px; // R 
+                        outPaper.data[(i*outH + j)*4 + 1] = px; // G
+                        outPaper.data[(i*outH + j)*4 + 2] = px; // B
+                        outPaper.data[(i*outH + j)*4 + 3] = 255; // Alpha -> 투명도
+                    }
+                }
+                // 캔버스에 올림
+                outCtx.putImageData(outPaper, 0, 0);
+        }
+
+        function selectAlgo(value) {
+            switch(parseInt(value)) {
+                case 100 : bw128_image(); break;
+                case 101 : bwMedian_image(); break;
+                case 102 : bwMean_image(); break;
+                case 200 : emboss_image(); break;
+                case 201 : sharp_image(); break;
+                case 202 : average_blur_image(); break;
+                case 203 : gaussian_blur_image(); break;
+                case 204 : bilateral_blur_image(); break;
+                case 205 : edge_image(); break;
+                case 400 : hist_image(); break;
+                case 401 : endIn_image(); break;
+                case 402 : histEqualization_image(); break;
+                default : equal_image(); break;
+            }
+        }
+
+        // reset 함수
+        function reset(except = undefined) {
+            for(var id of resetIdArray) {
+                if(id===except) {
+                    continue;
+                }
+                document.querySelector("#"+id).value = "";
+            }   
+        }
+
+
+
+        // 이미지 처리 함수부
+
+        // 2차원 배열 평균 함수
+        function array2DAverage(array2D) {
+            var sum = 0.0;
+            for(array of array2D) {
+                for(element of array) {
+                    sum += element;
+                }
+            }
+            return sum / (array2D.length * array2D[0].length);
+        }
+
+        // 동일 이미지
+        function equal_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[i][j];
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 밝기 조절
+        function brightControl() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // var value = parseInt(prompt("값", 50))
+            var value = parseInt(document.getElementById("brightness").value);
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] + value < 0){
+                        outImage[i][j] = 0;
+                    } else if (inImage[i][j] + value > 255) {
+                        outImage[i][j] = 255;
+                    } else {
+                        outImage[i][j] = inImage[i][j] + value;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+
+        }
+
+        // 색상 반전
+        function reverse_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = 255 - inImage[i][j];
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 흑백 처리(128 기준)
+        function bw128_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j]>=128) {
+                        outImage[i][j] = 255;
+                    } else {
+                        outImage[i][j] = 0;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 흑백 처리(중앙값 기준)
+        function bwMedian_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            //
+
+            var countArray = new Array(inH*inW);
+
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    countArray[i*256 + j] = inImage[i][j];
+                }
+            }
+
+            countArray.sort(function(a, b) {
+                return a - b ;
+            });
+            
+            // 처리 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j]>=countArray[Math.floor(inW*inH/2)]) {
+                        outImage[i][j] = 255;
+                    } else {
+                        outImage[i][j] = 0;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 흑백 처리(평균값 기준)
+        function bwMean_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 평균 값
+            var sum = 0;
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    sum += inImage[i][j];
+                }
+            }
+
+            // 처리 알고리즘
+            var mean = sum/(inH*inW);
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j]>=mean) {
+                        outImage[i][j] = 255;
+                    } else {
+                        outImage[i][j] = 0;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+
+        // 좌우 미러링
+        function rlInversion_Image() {
+            // 결과 배열 생성
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 좌우 미러링 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[i][outW - 1 - j]; // length는 index + 1
+                }
+            }
+            //
+
+            displayImage();
+
+        }
+
+        // 상하 미러링
+        function udInversion_Image() {
+            // 결과 배열 생성
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // 상하 미러링 처리
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = inImage[outH -1 - i][j]; // length는 index + 1
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 영역처리 알고리즘단
+
+        // 마스크 사이즈 입력 받기 위한 새로운 html 구문 추가
+        function addMaskSize(value) {
+            if((document.getElementById("maskSizeSelector") != null) && (!value)) {
+                var child = document.getElementById("maskSizeSelector");
+                child.parentNode.removeChild(child);
+                return ;
+            }
+            if((document.getElementById("maskSizeSelector") != null)) {
+                return ;
+            } 
+            
+            document.getElementById("area_selector_span").innerHTML += `
+                <select name="maskSize" id="maskSizeSelector" onchange="selectAlgo(document.getElementById('pAreaSelect').value)">
+                    <option class="optionDefault" value="3">마스크 사이즈 선택(기본3x3)</option>
+                        <option value="5">5x5</option>
+                        <option value="7">7x7</option>
+                        <option value="9">9x9</option>
+                        <option value="11">11x11</option>
+                </select>
+            `;
+            document.getElementById("pAreaSelect").value = value;
+
+        }
+
+
+        // 
+
+        // embossing 처리
+        function emboss_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // 마스크
+            var maskSize = parseInt(document.getElementById("maskSizeSelector").value);
+            var mask = new Array(maskSize);
+            var centerPoint = (maskSize-1)/2;
+            for(var i=0; i<maskSize; i++) {
+                mask[i] = new Array(maskSize).fill(0.0);
+                if(i<centerPoint) {
+                    mask[i][i] = -1;
+                } else if(i>centerPoint) {
+                    mask[i][i] = 1;
+                } else {
+                    continue;
+                }
+            }
+
+            var averageOfInImage = array2DAverage(inImage);
+            // 임시 입력 배열
+            var tempInImage = new Array(inH+maskSize-1);
+            for(var i=0; i<inH+maskSize-1; i++){
+                tempInImage[i] = new Array(inW+maskSize-1).fill(averageOfInImage);
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+centerPoint][j+centerPoint] = inImage[i][j];
+                }
+            }
+
+            // 임시 출력 배열(크기는 똑같지만 실수배열)
+            tempOutImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                tempOutImage[i] = new Array(outW);
+            }
+            
+            // 컨볼루션 연산
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            S += tempInImage[i+m][j+n] * mask[m][n];
+                        }
+                    }
+                    tempOutImage[i][j] = S;
+                }
+            }
+            // 후처리 -> mask의 합이 0이므로 0으로 수렴하여 어두워지는 것 후처리.
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = parseInt(tempOutImage[i][j] + averageOfInImage);
+                }
+            }
+
+            displayImage();
+        }
+
+        // 샤프닝 처리
+        function sharp_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // 샤프닝 마스크 (합 1)
+            // 마스크
+            var maskSize = parseInt(document.getElementById("maskSizeSelector").value);
+            var mask = new Array(maskSize);
+            var centerPoint = (maskSize-1)/2;
+            for(var i=0; i<maskSize; i++) {
+                mask[i] = new Array(maskSize).fill(-1.0);
+            }
+            mask[centerPoint][centerPoint] = Math.pow(maskSize,2);
+            
+            // 임시 입력 배열
+            var averageOfInImage = array2DAverage(inImage);
+            var tempInImage = new Array(inH+maskSize-1);
+            for(var i=0; i<inH+maskSize-1; i++){
+                tempInImage[i] = new Array(inW+maskSize-1).fill(averageOfInImage);
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+centerPoint][j+centerPoint] = inImage[i][j];
+                }
+            }
+
+            // 임시 출력 배열(크기는 똑같지만 실수배열)
+            tempOutImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                tempOutImage[i] = new Array(outW);
+            }
+            
+            // 컨볼루션 연산
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            S += tempInImage[i+m][j+n] * mask[m][n];
+                        }
+                    }
+                    tempOutImage[i][j] = S;
+                }
+            }
+            
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = parseInt(tempOutImage[i][j]);
+                }
+            }
+
+            displayImage();
+        }
+
+
+        // 평균 blur 처리
+        function average_blur_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // 마스크
+            var maskSize = parseInt(document.getElementById("maskSizeSelector").value);
+            var centerPoint = (maskSize-1)/2;
+
+            var weight = Math.pow(maskSize, 2);
+            var mask = new Array(maskSize);
+            for(var i=0;i<maskSize;i++) {
+                mask[i] = new Array(maskSize).fill(1.0/weight);
+            }
+
+            
+            // 임시 입력 배열(패딩 위한 여유 공간) -> 여기서는 average로 채워줌
+            // 임시 입력 배열
+            var tempInImage = new Array(inH+(maskSize-1));
+            for(var i=0; i<inH+(maskSize-1); i++){
+                tempInImage[i] = new Array(inW+(maskSize-1)).fill(array2DAverage(inImage));
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+centerPoint][j+centerPoint] = inImage[i][j];
+                }
+            }
+            
+            // 컨볼루션 연산
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            S += tempInImage[i+m][j+n] * mask[m][n];
+                        }
+                    }
+                    outImage[i][j] = parseInt(S);
+                }
+            }
+            
+
+            displayImage();
+        }
+
+        // gaussian blur 처리
+        function gaussian_blur_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            var maskSize = parseInt(document.getElementById("maskSizeSelector").value);
+            var centerPoint = (maskSize-1)/2.0;
+         
+            var sigmaGaussian = 3; // Gaussian filter의 표준편차
+            var mask = new Array(maskSize);
+            for(var i=0;i<maskSize;i++) {
+                mask[i] = new Array(maskSize);
+            }
+
+            // 가우시안 필터 계산식
+            var weight = 0.0; // 정규화
+            for(var i=0;i<maskSize;i++) {
+                for(var j=0;j<maskSize;j++) {
+                    mask[i][j] = (1.0/(2.0*Math.PI*Math.pow(sigmaGaussian, 2)))
+                                    *Math.exp(-(Math.pow(i-centerPoint, 2) + Math.pow(j-centerPoint, 2))/(2.0*Math.pow(sigmaGaussian, 2)))
+                    weight += mask[i][j];
+                }
+            }
+
+            // 임시 입력 배열
+            var tempInImage = new Array(inH+(maskSize-1));
+            for(var i=0; i<inH+(maskSize-1); i++){
+                tempInImage[i] = new Array(inW+(maskSize-1)).fill(array2DAverage(inImage));
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+centerPoint][j+centerPoint] = inImage[i][j];
+                }
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            S += (tempInImage[i+m][j+n] * mask[m][n] / weight);
+                        }
+                    }outImage[i][j] = parseInt(S);
+                }  
+            }
+            
+
+            displayImage();
+        }
+
+        // bilateral blur 처리
+        function bilateral_blur_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            var maskSize = parseInt(document.getElementById("maskSizeSelector").value);
+            var centerPoint = (maskSize-1)/2.0;
+
+            var sigmaGPrime = 7; // -> Bilateral filter에서 적용할 G'의 표준편차            
+            var sigmaGaussian = 3; // Gaussian filter의 표준편차
+            var mask = new Array(maskSize);
+            for(var i=0;i<maskSize;i++) {
+                mask[i] = new Array(maskSize);
+            }
+
+            // 가우시안 필터 계산식
+            for(var i=0;i<maskSize;i++) {
+                for(var j=0;j<maskSize;j++) {
+                    mask[i][j] = (1.0/(2.0*Math.PI*Math.pow(sigmaGaussian, 2)))
+                                    *Math.exp(-(Math.pow(i-centerPoint, 2) + Math.pow(j-centerPoint, 2))/(2.0*Math.pow(sigmaGaussian, 2)))
+                }
+            }
+            // 임시 입력 배열
+            var tempInImage = new Array(inH+(maskSize-1));
+            for(var i=0; i<inH+(maskSize-1); i++){
+                tempInImage[i] = new Array(inW+(maskSize-1)).fill(array2DAverage(inImage));
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+centerPoint][j+centerPoint] = inImage[i][j];
+                }
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    var weight = 0.0; // -> 정규화
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            var gPrime = Math.exp(-Math.pow((tempInImage[i+m][j+n] - tempInImage[i + centerPoint][j + centerPoint]), 2) / (2.0 * Math.pow(sigmaGPrime, 2)));
+                            weight += gPrime * mask[m][n];
+                            S += (tempInImage[i+m][j+n] * gPrime * mask[m][n]);
+                        }
+                    }outImage[i][j] = parseInt(S * (1.0 / weight));
+                }  
+            }
+            
+
+            displayImage();
+        }
+
+        // edge 처리 -> canny edge detection
+        function edge_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // 마스크
+            var maskSize = 3;
+            var centerPoint = (maskSize-1)/2.0;
+
+            var sigma = 5; 
+            var mask = new Array(maskSize);
+            for(var i=0;i<maskSize;i++) {
+                mask[i] = new Array(maskSize);
+            }
+
+            // 가우시안 필터 계산식
+            var weight = 0.0;
+            for(var i=0;i<maskSize;i++) {
+                for(var j=0;j<maskSize;j++) {
+                    var gaussian = (1.0/(2.0*Math.PI*Math.pow(sigma, 2))) * Math.exp(-(Math.pow(i-centerPoint, 2) + Math.pow(j-centerPoint, 2))/(2.0*Math.pow(sigma, 2)));
+                    mask[i][j] = gaussian;
+                    weight += mask[i][j];
+                }
+            }
+
+            // sobel filter
+            horizontal_filter = [[-1,0,1],[-2,0,2],[-1,0,1]];
+            vertical_filter = [[-1,-2,-1],[0,0,0],[1,2,1]];
+            
+            // 임시 입력 배열
+            var tempInImage = new Array(inH+2);
+            for(var i=0; i<inH+2; i++){
+                tempInImage[i] = new Array(inW+2).fill(array2DAverage(inImage));
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    tempInImage[i+1][j+1] = inImage[i][j];
+                }
+            }
+            
+            // 가우시안 적용한 임시 이미지
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            S += tempInImage[i+m][j+n] * mask[m][n];
+                        }
+                    }
+                    tempInImage[i][j] = S/weight;
+                }
+            }
+
+            // sobel 필터 적용
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var S = 0.0;
+                    for(var m=0; m<maskSize; m++){
+                        for(var n=0; n<maskSize; n++) {
+                            var horizonValue = Math.pow(tempInImage[i+m][j+n] * horizontal_filter[m][n], 2);
+                            var verticalValue = Math.pow(tempInImage[i+m][j+n] * vertical_filter[m][n], 2);
+                            var norm = Math.sqrt(horizonValue + verticalValue);
+                            var thetha = Math.atan(Math.sqrt(verticalValue/horizonValue));
+                        }
+                    }
+                    outImage[i][j] = parseInt(S);
+                }
+            }
+
+
+            displayImage();
+        }
+
+        // 히스토그램 스트레칭
+        function hist_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // out = ((in-low)/(high-low) * 255.0)
+            var low=inImage[0][0], high=inImage[0][0];
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] < low) {
+                        low = inImage[i][j];
+                    }
+                    if(inImage[i][j] > high) {
+                        high = inImage[i][j];
+                    }
+                }
+            }
+
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var out = ((inImage[i][j]-low)/(high-low) * 255.0)
+                    outImage[i][j] = parseInt(out);
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 엔드-인 탐색
+        function endIn_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // out = ((in-low)/(high-low) * 255.0)
+            var low=inImage[0][0], high=inImage[0][0];
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    if(inImage[i][j] < low) {
+                        low = inImage[i][j];
+                    }
+                    if(inImage[i][j] > high) {
+                        high = inImage[i][j];
+                    }
+                }
+            }
+
+            low += 50;  // 양 극단 값 일부 날려줌
+            high -= 50;
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    var out = ((inImage[i][j]-low)/(high-low) * 255.0)
+                    outImage[i][j] = parseInt(out);
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        // 히스토그램 평활화
+        function histEqualization_image() {
+            // 출력 이미지 크기 결정
+            outH = inH;
+            outW = inW;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 출력 메모리 할당
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+
+            // 처리 알고리즘
+            // 1단계 : 히스토그램 생성
+            var histo = new Array(256).fill(0);
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    histo[inImage[i][j]] += 1;
+                }
+            }
+            // 2단계 : 누적 히스토그램 생성
+            var sumHisto = new Array(256).fill(0);
+            var sumValue = 0;
+            for(var i=0; i<inH; i++) {
+                    sumValue += histo[i];
+                    sumHisto[i] += sumValue;
+            }
+
+            // 3단계 : 정규화된 누적합 생성
+            // n[i] = sumHisto[i] * (1.0/(inH*inW) * 255.0)
+            var n = new Array(256).fill(0.0);
+            for(var i=0; i<256; i++) {
+                n[i] = sumHisto[i] * (1.0/(inH*inW) * 255.0)
+            }
+
+            // 최종 : 정규화 된 누적합을 이용해서 픽셀값 변환
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    outImage[i][j] = parseInt(n[inImage[i][j]]);
+                }
+            }
+            //
+
+            displayImage();
+        }
+        
+        // 확대 축소
+        function zoom_image(method) {
+            // 기본 변수 설정
+            var powValue;
+            switch(method) {
+                case 'range' : powValue = document.getElementById("zoom").value; break;
+                case 'select' : powValue = Math.log2(document.getElementById("zoomIntSelect").value); break;
+            }
+
+            var value = Math.pow(2, powValue)
+            
+            outH = Math.round(inH * value);
+            outW = Math.round(inW * value);
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            // 결과 배열 생성
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }
+            
+            // //확대/축소 알고리즘
+            // Bilateral Filter를 씌우고 subsampling 수행 -> 엘리어싱 문제 최소화 & 엣지 손실 문제 최소화
+            // -> 의도는 엘리어싱 문제의 해결이었으나, 엣지 손실을 회복하는 과정에서 엘리어싱이 발생함.
+            if(value<1) {
+                // 처리 알고리즘
+                // 평균 blur 필터와 가우시안 blur 필터 사이의 차이가 크지 않음.
+                // ->  따라서 쌍방 필터 기법에는 단순 평균 blur 필터 사용하고 사용 옵션에 가우시안 블러 필터를 하나 추가
+                var maskSize = 3;
+
+                var mask = new Array(maskSize);
+                for(var i=0; i<maskSize; i++) {
+                    mask[i] = new Array(maskSize).fill(1.0);
+                }
+
+                var sigmaGPrime = 0.01; // -> Bilateral filter에서 적용할 G'의 표준편차
+
+                // 임시 입력 배열
+                var tempInImage = new Array(inH+(maskSize-1));
+                for(var i=0; i<inH+(maskSize-1); i++){
+                    tempInImage[i] = new Array(inW+(maskSize-1)).fill(array2DAverage(inImage));
+                }
+
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        tempInImage[i+(maskSize-1)/2][j+(maskSize-1)/2] = inImage[i][j];
+                    }
+                }
+
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {
+                        var newX = Math.round(i/value);
+                        var newY = Math.round(j/value);
+                        var S = 0.0;
+                        var weight = 0.0; // -> 정규화
+                        for(var m=0; m<maskSize; m++){
+                            for(var n=0; n<maskSize; n++) {
+                                var centerOfMask = (maskSize - 1)/2;
+                                var gPrime = Math.exp(-Math.pow((tempInImage[newX+m][newY+n] - tempInImage[newX + centerOfMask][newY + centerOfMask]), 2) / (2.0 * Math.pow(sigmaGPrime, 2)));
+                                weight += gPrime * mask[m][n];
+                                S += (tempInImage[newX+m][newY+n] * gPrime * mask[m][n]);
+                            }
+                        }outImage[i][j] = parseInt(S * (1.0 / weight));
+                    }  
+                }
+            
+            // 확대는 선형 보간 적용
+            } else {
+                // 임시 출력 배열
+                var tempOutImage = new Array(outH);
+                for(var i=0; i<outH; i++){
+                    tempOutImage[i] = new Array(outW);
+                }
+
+                // 행방향 보간 함수
+                function interpolateRow(image, rowNum, startCol, endCol) {
+                    var totalLenght = endCol - startCol;
+                    for(var k=startCol+1; k<endCol; k++) {
+                        var alpha = (k - startCol)/totalLenght;
+                        image[rowNum][k] = (1-alpha)*image[rowNum][startCol] + alpha*image[rowNum][endCol];
+                    }
+                }
+
+                // 임시 출력 배열에 inImage 분배와 동시에 행방향 보간 수행
+                var distributeRatio = ((outH-1)/(inH-1)); // -> inH 값들 사이에 outH의 빈 공간 배분한다고 생각
+
+                for(var i=0; i<inH; i++) {
+                    var startCol = null; // 행마다 시작점 초기화
+                    var endCol = null;
+                    for(var j=0; j<inW; j++) {                           
+                        tempOutImage[Math.round(i*distributeRatio)][Math.round(j*distributeRatio)] = inImage[i][j];
+                        if(startCol == null) { // 시작점 초기화 된 상황에서는 새로 부여하고 다음 픽셀로.
+                            startCol = Math.round(j*distributeRatio);
+                            continue;
+                        } else {
+                            endCol = Math.round(j*distributeRatio); // 끝 열을 현재 열로 부여
+                            interpolateRow(tempOutImage, Math.round(i*distributeRatio), startCol, endCol)
+                            startCol = Math.round(j*distributeRatio); // 시작열을 다시 현재 열로 부여
+                            continue;
+                        }
+                    }
+                }           
+
+                // 열 방향 보간 수행
+                function interpolateCol(image, colNum, startRow, endRow) { // 특정 열의 보간 함수
+                    var totalLenght = endRow - startRow;
+                    for(var k=startRow+1; k<endRow; k++) {
+                        var beta = (k - startRow)/totalLenght;
+                        image[k][colNum] = (1-beta)*image[startRow][colNum] + beta*image[endRow][colNum];
+                    }
+                }
+
+                for(var j=0; j<outW; j++) { // 열방향 보간
+                    var startRow = null; // 열마다 시작점 초기화
+                    var endRow = null;
+                    for(var i=0; i<outH; i++) {      
+                        if(tempOutImage[i][j] == undefined) { // 빈 공간 스킵
+                            continue;
+                        }            
+                        if(startRow == null) { // 시작점 초기화 된 상황에서는 새로 부여하고 다음 픽셀로.
+                            startRow = i;
+                            continue;
+                        } else {
+                            endRow = i; // 끝 열을 현재 열로 부여
+                            interpolateCol(tempOutImage, j, startRow, endRow)
+                            startRow = i; // 시작열을 다시 현재 열로 부여
+                            continue;
+                        }
+                    }
+                }
+
+                for(var i=0; i<outH; i++) {
+                    for(var j=0; j<outW; j++) {                        
+                        outImage[i][j] = Math.round(tempOutImage[i][j]);
+                    }
+                }
+
+
+            }
+
+            displayImage();
+        }
+
+        // 회전
+        function rotate_image() {
+            // 결과 배열 생성
+            var value = document.getElementById("rotation").value;
+            var theta = Math.PI/180 * value;
+            const sinTheta = Math.sin(theta);
+            const cosTheta = Math.cos(theta);
+
+            rangeX = (Math.abs(inH*cosTheta) + Math.abs(inW*sinTheta));
+            rangeY = (Math.abs(inH*sinTheta) + Math.abs(inW*cosTheta));
+            
+            outH = parseInt(rangeX);
+            outW = parseInt(rangeY);
+
+            cX = inH/2;
+            cY = inW/2;
+
+            midX = outH/2;
+            midY = outW/2;
+
+            outCanvas.height = outH;
+            outCanvas.width = outW;
+
+            outImage = new Array(outH);
+            for(var i=0; i<outH; i++) {
+                outImage[i] = new Array(outW);
+            }            
+            
+            // 회전 알고리즘
+            for(var i=0; i<outH; i++) {
+                for(var j=0; j<outW; j++) {
+                    // outImage로 옮기고 싶은 이미지(=inImage의 회전된 이미지)의 회전축이 cX, cY 이므로 보정해줌.
+                    var oldX = parseInt(cosTheta*(i - midX) + sinTheta*(j - midY) + cX);
+                    var oldY = parseInt(-sinTheta*(i - midX) + cosTheta*(j - midY) + cY);
+                    if(((oldX>=0)&(oldX<inH))&((oldY>=0)&(oldY<inW))){
+                        outImage[i][j] = inImage[oldX][oldY];
+                    } else {
+                        outImage[i][j] = 255;
+                    }
+                }
+            }
+            //
+
+            displayImage();
+        }
+
+        function change_input(id) {
+            switch(id) {
+                case 'brightness' : document.getElementById("bright_num_input").value = document.getElementById(id).value; break;
+                case 'rotation' : document.getElementById("rotation_num_input").value = document.getElementById(id).value; break;
+            }
+        }
+
+        function change_range(id) {
+            switch(id) {
+                case 'bright_num_input_button' : document.getElementById("brightness").value = document.getElementById('bright_num_input').value; break;
+                case 'zoomIntSelect' : document.getElementById("zoom").value = Math.log2(document.getElementById(id).value); break;
+                case 'rotation_num_input_button' : document.getElementById("rotation").value = document.getElementById('rotation_num_input').value; break;
+            }
+
+            
+        }
+
+    </script>
+        <style>
+            datalist {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-content: center;
+                writing-mode: horizontal-tb;
+                width: 215px;
+            }
+
+            option {
+                padding: 0;
+            }
+
+            option.optionDefault {
+                font-weight: bold;
+            }
+
+            input[type="range"] {
+                width: 210px;
+                margin: 9px;
+            }
+
+            input[type="number"] {
+                width: 65px;
+                margin: auto;
+                text-align: center;
+            }
+
+            canvas.inImageCanvas {
+                background-color: yellow;
+            }
+
+            canvas.outImageCanvas {
+                background-color: aqua;
+            }
+
+        </style>
+
+    <title>RAW Image Processor</title>
+</head>
+<!-- body 로드되면 init() 함수 실행-->
+<body onload="init()">
+        <div>
+            <h1>RAW 이미지 처리기</h1>
+        </div>
+        <div>
+            <canvas class="inImageCanvas" id="inCanvas" width="400" height="300">
+                <!--캔버스 기본 크기 대충 결정 어차피 이미지에 맞게 변경됨--> </canvas>
+            &nbsp;&nbsp;
+            <canvas class="outImageCanvas" id="outCanvas" width="400" height="300">
+                <!--이미지 처리된 후 결과 창--> </canvas>
+        </div>
+
+        <br/>
+
+        <div>
+            <label for="input_file"></label>
+                <input type="file" id="inFile" onchange="reset();openRawImage()" placeholder="FileOpen"/>
+        </div>
+        <br/>
+
+        <div name="처리 메뉴 모음">
+            <div id="buttons">
+                <span name="동일 이미지">
+                    <input type="button" id="original" value="동일 이미지(초기화)" onclick="reset();equal_image()" />
+                </span>
+
+                <span name="색상 반전">
+                    <input type="button" id="reverse" value="색상 반전" onclick="reset(this.id);reverse_image()" />
+                </span>
+
+                <span name="상하 반전">
+                    <input type="button" id="udInversion" value="상하 반전" onclick="reset(this.id);udInversion_Image()" />
+                </span>
+
+                <span name="좌우 반전">
+                    <input type="button" id="rlInversion" value="좌우 반전" onclick="reset(this.id);rlInversion_Image()" />
+                </span>
+            </div>
+            <br/>
+            <label for="selectors">
+                <div id="selectors">                
+                    <span name="흑백 처리">
+                        <select name="bw" id="bwSelect" onchange="reset(this.id);selectAlgo(this.value)" title="흑백 처리">
+                            <option class="optionDefault" value="">흑백 처리 방법 선택</option>
+                                <option value="100">128 기준</option>
+                                <option value="101">중앙값 기준</option>
+                                <option value="102">평균값 기준</option>
+                        </select>
+                    </span>
+
+                    <span name="히스토그램 처리">
+                        <select name="hist" id="histSelect" onchange="reset(this.id);selectAlgo(this.value)" title="히스토그램 처리">
+                            <option class="optionDefault" value="">히스토그램 탐색 선택</option>
+                                <option value="400">히스토그램 스트래칭</option>
+                                <option value="401">엔드-인 탐색</option>
+                                <option value="402">히스토그램 평활화</option>
+                        </select>
+                    </span>
+                </div>
+                <br/>
+                <div id="area_selector">
+                    <span id="area_selector_span" name="화소 영역 처리">
+                        <select name="pArea" id="pAreaSelect" onchange="reset(this.id);addMaskSize(this.value);selectAlgo(this.value)" title="화소 영역 처리">
+                            <option class="optionDefault" value="">화소 영역 처리 선택</option>
+                                <option value="200">엠보싱</option>
+                                <option value="201">샤프닝</option>
+                                <option value="202">평균 블러링</option>
+                                <option value="203">가우시안 블러링</option>
+                                <option value="204">쌍방 필터 블러링</option>
+                                <option value="205">윤곽선 추출</option>
+                            </select>
+                    </span>
+                </div>
+            </label>
+
+            <br/>
+
+            <div>
+                <span name="밝기 조절">
+                    <label for="brightness">밝기 조절</label><br/>
+                    <input type="range" id="brightness" min="-255" max="255" step="1" onchange="reset(this.id);change_input(this.id);brightControl()" />
+                    <input type="number" id="bright_num_input" min="-255" max="255" step="1" placeholder="-255~255" value=""/>
+                    <input type="button" id="bright_num_input_button"onclick="reset('bright_num_input');change_range(this.id);brightControl()" value="확인" />
+                    <datalist id="brightness_list">
+                        <option value="0" label="-255"></option>
+                        <option value="20" label="-128"></option>
+                        <option value="50" label="0"></option>
+                        <option value="83" label="128"></option>
+                        <option value="100" label="255"></option>
+                    </datalist>
+                </span>
+                <br/>
+                <span name="확대/축소">
+                    <label for="zoom">확대/축소</label><br/>
+                    <input type="range" id="zoom" min="-3" max="3" step="0.01" onchange="reset(this.id);zoom_image('range')" />
+                    <select name="zoom_int" id="zoomIntSelect" onchange="reset(this.id);change_range(this.id);zoom_image('select')" title="줌 정수배 선택">
+                        <option class="optionDefault" value="">확대/축소 정수배 선택</option>
+                            <option value="8">8</option>
+                            <option value="7">7</option>
+                            <option value="6">6</option>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                            <option value="0.5">1/2</option>
+                            <option value="0.333333333333">1/3</option>
+                            <option value="0.25">1/4</option>
+                            <option value="0.2">1/5</option>
+                            <option value="0.161616161616">1/6</option>
+                            <option value="0.142857142857">1/7</option>
+                            <option value="0.125">1/8</option>
+                    </select>
+                    <datalist id="zoom_list">
+                        <option value="0" label="⅛"></option>
+                        <option value="16.667" label="¼"></option>
+                        <option value="33.333" label="½"></option>
+                        <option value="50" label="1"></option>
+                        <option value="66.667" label="2"></option>
+                        <option value="83.333" label="4"></option>
+                        <option value="100" label="8"></option>
+                    </datalist>
+                </span>
+                <br/>
+                    <span name="회전">
+                        <label for="rotation">회전</label><br/>
+                        <input type="range" id="rotation" min="-180" max="180" step="any" onchange="reset(this.id);change_input(this.id);rotate_image()" />
+                        <input type="number" id="rotation_num_input" min="-180" max="180" step="any" placeholder="-180~180" value=""/>
+                        <input type="button" id="rotation_num_input_button"onclick="reset('rotation_num_input');change_range(this.id);rotate_image()" value="확인" />
+                        <datalist id="rotation_list">
+                            <option value="0" label="-180"></option>
+                            <option value="25" label="-90"></option>
+                            <option value="50" label="0"></option>
+                            <option value="75" label="90"></option>
+                            <option value="100" label="180"></option>
+                        </datalist>
+                    </span>
+            </div>   
+        </div>
+    
+    
+</body>
+</html>
