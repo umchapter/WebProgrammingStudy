@@ -8,6 +8,7 @@
     <script type="text/javascript">
         // 전역 변수단
         let inCanvas, inCtx, outCanvas, outCtx; // 캔버스 변수
+        let request = new XMLHttpRequest();
         let inFile;
         let inImage, inH, inW; // 이미지 파일 관련 변수들
         let outImage, outH, outW; // 출력 배열, 출력 폭과 높이
@@ -31,9 +32,19 @@
             outCtx.fillText('Output Image', 48, outCanvas.height/2+5);
         }
 
-        function openRawImage() {
+        function openRawImage(path) {
+            fetch('./raw/256/LENA256.RAW', {method: 'GET'})
+            .then(res => res.blob()) // Gets the response and returns it as a blob
+            .then(blob => {
+                // Here's where you get access to the blob
+                // And you can use it for whatever you want
+                // Like calling ref().put(blob)
+
+                // Here, I use it to make an image appear on the page
+                let myImage = new Image();
+            });
             // input 받음
-            inFile = document.getElementById("inFile").files[0];
+            inFile = myImage;
             // file.size를 통해 배열 크기 구함
             inH = inW = Math.floor(Math.sqrt(inFile.size));
             // 배열 생성
@@ -46,27 +57,18 @@
             inCanvas.height = inH;
             inCanvas.width = inW;
 
-            // 이미지 파일 배열에 저장
-            // 리더로 파일 읽어옴
-            var reader = new FileReader();
-            reader.readAsBinaryString(inFile);
+            // blob에서 뽑아서 배열에 저장
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    // 시작 픽셀과 끝 픽셀
+                    var sPixel = (i*inH + j);
+                    var ePixel = (i*inH + j) + 1;
 
-            reader.onload = function() { // 익명함수 방식
-                var blob = reader.result; // 바이너리 스트링으로 읽은 파일을 블롭에 저장
-
-                // blob에서 뽑아서 배열에 저장
-                for(var i=0; i<inH; i++) {
-                    for(var j=0; j<inW; j++) {
-                        // 시작 픽셀과 끝 픽셀
-                        var sPixel = (i*inH + j);
-                        var ePixel = (i*inH + j) + 1;
-
-                        inImage[i][j] = blob.slice(sPixel, ePixel)
-                                                .charCodeAt(0); // 바이너리 스트링을 숫자로
-                    }
+                    inImage[i][j] = blob.slice(sPixel, ePixel)
+                                            .charCodeAt(0); // 바이너리 스트링을 숫자로
                 }
-                equal_image();
             }
+            equal_image();
         }
 
         function displayImage() {
@@ -1272,6 +1274,14 @@
         <div>
             <h1>RAW 이미지 처리기</h1>
         </div>
+
+        <div>
+            <span name="images">
+                <button onclick="reset();openRawImage('./raw/Etc_Raw(squre)/LENNA512.raw')"><img src="./raw/Etc_Raw(squre)/LENNA512.raw" width="128 px" height="128 px"/></button>
+            </span>
+        </div>
+        <br/>
+
         <div>
             <canvas class="inImageCanvas" id="inCanvas" width="400" height="300">
                 <!--캔버스 기본 크기 대충 결정 어차피 이미지에 맞게 변경됨--> </canvas>
@@ -1280,12 +1290,6 @@
                 <!--이미지 처리된 후 결과 창--> </canvas>
         </div>
 
-        <br/>
-
-        <div>
-            <label for="input_file"></label>
-                <input type="file" id="inFile" onchange="reset();openRawImage()" placeholder="FileOpen"/>
-        </div>
         <br/>
 
         <div name="처리 메뉴 모음">
