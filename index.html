@@ -8,7 +8,6 @@
     <script type="text/javascript">
         // 전역 변수단
         let inCanvas, inCtx, outCanvas, outCtx; // 캔버스 변수
-        let request = new XMLHttpRequest();
         let inFile;
         let inImage, inH, inW; // 이미지 파일 관련 변수들
         let outImage, outH, outW; // 출력 배열, 출력 폭과 높이
@@ -33,35 +32,11 @@
         }
 
         function openRawImage(path) {
-            fetch('./raw/256/LENA256.RAW', {method: 'GET'})
-            .then(res => res.blob()) // Gets the response and returns it as a blob
-            .then(blob => {
-                inFile = res;
-                // file.size를 통해 배열 크기 구함
-                inH = inW = Math.floor(Math.sqrt(inFile.size));
-                // 배열 생성
-                inImage = new Array(inH);
-                for(var i=0; i<inH; i++) {
-                    inImage[i] = new Array(inW);
-                }
+            const response = fetch(path);
 
-                // 캔버스 크기 조정
-                inCanvas.height = inH;
-                inCanvas.width = inW;
+            var blob = response.blob();
 
-                // blob에서 뽑아서 배열에 저장
-                for(var i=0; i<inH; i++) {
-                    for(var j=0; j<inW; j++) {
-                        // 시작 픽셀과 끝 픽셀
-                        var sPixel = (i*inH + j);
-                        var ePixel = (i*inH + j) + 1;
-
-                        inImage[i][j] = blob.slice(sPixel, ePixel)
-                                                .charCodeAt(0); // 바이너리 스트링을 숫자로
-                    }
-                }
-            });
-            // input 받음
+            console.log(blob)
             
             equal_image();
         }
