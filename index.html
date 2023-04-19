@@ -31,14 +31,12 @@
             outCtx.fillText('Output Image', 48, outCanvas.height/2+5);
         }
 
-        function openRawImage(path) {
-            const response = fetch(path);
+        fetch('./raw/Etc_Raw(squre)/LENNA512.raw')
+            .then((response) => response.blob())
+            .then((data) => console.log(data));
 
-            const blob = response.blob();
-            const base64 = URL.createObjectURL(blob)
-
-            console.log({blob})
-            console.log({base64})
+        function openRawImage() {
+            
             
             equal_image();
         }
