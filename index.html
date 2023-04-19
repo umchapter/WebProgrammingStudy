@@ -34,9 +34,11 @@
         function openRawImage(path) {
             const response = fetch(path);
 
-            var blob = response.blob();
+            const blob = response.blob();
+            const base64 = URL.createObjectURL(blob)
 
-            console.log(blob)
+            console.log({blob})
+            console.log({base64})
             
             equal_image();
         }
