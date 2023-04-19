@@ -36,38 +36,33 @@
             fetch('./raw/256/LENA256.RAW', {method: 'GET'})
             .then(res => res.blob()) // Gets the response and returns it as a blob
             .then(blob => {
-                // Here's where you get access to the blob
-                // And you can use it for whatever you want
-                // Like calling ref().put(blob)
+                inFile = res;
+                // file.size를 통해 배열 크기 구함
+                inH = inW = Math.floor(Math.sqrt(inFile.size));
+                // 배열 생성
+                inImage = new Array(inH);
+                for(var i=0; i<inH; i++) {
+                    inImage[i] = new Array(inW);
+                }
 
-                // Here, I use it to make an image appear on the page
-                let myImage = new Image();
+                // 캔버스 크기 조정
+                inCanvas.height = inH;
+                inCanvas.width = inW;
+
+                // blob에서 뽑아서 배열에 저장
+                for(var i=0; i<inH; i++) {
+                    for(var j=0; j<inW; j++) {
+                        // 시작 픽셀과 끝 픽셀
+                        var sPixel = (i*inH + j);
+                        var ePixel = (i*inH + j) + 1;
+
+                        inImage[i][j] = blob.slice(sPixel, ePixel)
+                                                .charCodeAt(0); // 바이너리 스트링을 숫자로
+                    }
+                }
             });
             // input 받음
-            inFile = myImage;
-            // file.size를 통해 배열 크기 구함
-            inH = inW = Math.floor(Math.sqrt(inFile.size));
-            // 배열 생성
-            inImage = new Array(inH);
-            for(var i=0; i<inH; i++) {
-                inImage[i] = new Array(inW);
-            }
-
-            // 캔버스 크기 조정
-            inCanvas.height = inH;
-            inCanvas.width = inW;
-
-            // blob에서 뽑아서 배열에 저장
-            for(var i=0; i<inH; i++) {
-                for(var j=0; j<inW; j++) {
-                    // 시작 픽셀과 끝 픽셀
-                    var sPixel = (i*inH + j);
-                    var ePixel = (i*inH + j) + 1;
-
-                    inImage[i][j] = blob.slice(sPixel, ePixel)
-                                            .charCodeAt(0); // 바이너리 스트링을 숫자로
-                }
-            }
+            
             equal_image();
         }
 
