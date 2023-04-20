@@ -114,19 +114,19 @@
 
 ### 4. 회전
 > 회전 알고리즘은 아래와 같이 표현할 수 있다.
-> $$\begin{bmatrix} x_{new} \\ y_{new} \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}$$
+> ```math
+>\begin{bmatrix} x_{new} \\ y_{new} \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}
+>```
 
 > 그러나 단순히 위와 같이 계산하여 구현할 경우, 이미지에 빈 구멍(hole)이 생기는 문제와 이미지가 잘리는 문제 등이 발생한다. 따라서 몇 가지 보완을 수행해야 한다.
 > * 회전 알고리즘의 보완
-
-$$
-{\begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}} = {\begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix}} {\begin{bmatrix} x_{new} -C_{x_{new}} \\ y_{old} - C_{y_{new}} \end{bmatrix}} + {\begin{bmatrix} C_{x_{old}} \\ C_{y_{old}} \end{bmatrix}}
-$$
+>```math
+>{\begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}} = {\begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix}} {\begin{bmatrix} x_{new} -C_{x_{new}} \\ y_{old} - C_{y_{new}} \end{bmatrix}} + {\begin{bmatrix} C_{x_{old}} \\ C_{y_{old}} \end{bmatrix}}
+>```
 
 > 위와 같이 역방향 사상을 고려하여 hole 문제를 해결한다. 다만 상기 $x,y$의 범위 문제에 유의하여야 한다.  
 > 또한 회전에 따른 출력 이미지의 크기 변화를 아래와 같이 반영한다.
-$$
-H' = |H\cdot\cos\theta| + |W\cdot\sin\theta|  \\
-W' = |H\cdot\sin\theta| + |W\cdot\cos\theta|
-$$
+$$H' = |H\cdot\cos\theta| + |W\cdot\sin\theta|$$
+$$W' = |H\cdot\sin\theta| + |W\cdot\cos\theta|$$
+
 
