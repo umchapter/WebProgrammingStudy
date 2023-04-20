@@ -38,7 +38,6 @@
         }
         
         function openImageOnline(url) {
-            console.log(imageUrl);
             fetch(baseUrl + url)
             .then(res => res.blob())
             .then(tempBlob => {
