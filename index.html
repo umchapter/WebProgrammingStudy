@@ -7,6 +7,10 @@
 
     <script type="text/javascript">
         // 전역 변수단
+        let baseUrl = "https://raw.githubusercontent.com/umchapter/WebProgrammingStudy/master/raw/";
+        let imageUrl = new Map();
+            imageUrl.set({"Lenna" : "Etc_Raw(squre)/LENNA512.RAW", "SemiConductor" : "Etc_Raw(squre)/semiconduct512.RAW",
+                          "Fox" : "Pet_RAW(squre)/Pet_RAW(512x512)/etc05_512.RAW", "Flower" : "Etc_Raw(squre)/flower512.RAW"})
         let inCanvas, inCtx, outCanvas, outCtx; // 캔버스 변수
         let inFile;
         let inImage, inH, inW; // 이미지 파일 관련 변수들
@@ -29,6 +33,35 @@
             outCtx = outCanvas.getContext("2d");
             outCtx.font = '48px roboto';
             outCtx.fillText('Output Image', 48, outCanvas.height/2+5);
+        }
+        
+        function openImageOnline(url) {
+            fetch(baseUrl + url)
+            .then(res => res.blob())
+            .then(tempBlob => {
+                tempBlob.arrayBuffer().then((buffer) => {
+                    const inFile = new Uint8Array(buffer);
+
+                    inH = inW = Math.floor(Math.sqrt(inFile.length));
+                    // 배열 생성
+                    inImage = new Array(inH);
+                    for(var i=0; i<inH; i++) {
+                        inImage[i] = new Array(inW);
+                        for(var j=0; j<inW; j++) {
+                            inImage[i][j] = inFile[i*inH + j];
+                        }
+                    }
+
+                    // 캔버스 크기 조정
+                    inCanvas.height = inH;
+                    inCanvas.width = inW;
+
+                equal_image();
+
+
+            })
+
+        })
         }
 
         function openRawImage() {
@@ -1272,7 +1305,24 @@
         <div>
             <h1>RAW 이미지 처리기</h1>
         </div>
-        <img src="/assets/raw/256/LENA256.RAW"/>
+        <div>
+            <label for="inFile">로컬 컴퓨터에서 선택:</label> &nbsp;
+            <input type="file" id="inFile" onchange="reset();openRawImage()" placeholder="FileOpen"/>
+        </div>
+        <br/>
+
+        <div>
+            <label for="imageButtons">프리셋 이미지</label>
+            <br/> <br/>
+            <span id="imageButtons">
+                <button onclick="reset();openImageOnline(imageUrl.get('Lenna'))"><img src="./assets/images/Lenna.png" width="128" height="128"/></button>
+                <button onclick="reset();openImageOnline(imageUrl.get('SemiConductor'))"><img src="./assets/images/SemiConductor.png" width="128" height="128"/></button>
+                <button onclick="reset();openImageOnline(imageUrl.get('Flower'))"><img src="./assets/images/Flower.png" width="128" height="128"/></button>
+                <button onclick="reset();openImageOnline(imageUrl.get('Fox'))"><img src="./assets/images/Fox.png" width="128" height="128"/></button>
+            </span>
+        </div>
+        <br/>
+            
         <div>
             <canvas class="inImageCanvas" id="inCanvas" width="400" height="300">
                 <!--캔버스 기본 크기 대충 결정 어차피 이미지에 맞게 변경됨--> </canvas>
@@ -1281,13 +1331,7 @@
                 <!--이미지 처리된 후 결과 창--> </canvas>
         </div>
 
-        <br/>
-
-        <div>
-            <label for="input_file"></label>
-                <input type="file" id="inFile" onchange="reset();openRawImage()" placeholder="FileOpen"/>
-        </div>
-        <br/>
+        <br/>        
 
         <div name="처리 메뉴 모음">
             <div id="buttons">
