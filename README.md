@@ -138,5 +138,7 @@
 
 > 위와 같이 역방향 사상을 고려하여 hole 문제를 해결한다. 다만 상기 $x,\;y$의 범위 문제에 유의하여야 한다.  
 > 또한 회전에 따른 출력 이미지의 크기 변화를 아래와 같이 반영한다.
-$$ H' = |H\cdot\cos\theta| + |W\cdot\sin\theta| \\
-W' = |H\cdot\sin\theta| + |W\cdot\cos\theta| \\$$
+```math
+H' = |H\cdot\cos\theta| + |W\cdot\sin\theta| \\
+W' = |H\cdot\sin\theta| + |W\cdot\cos\theta|
+```
