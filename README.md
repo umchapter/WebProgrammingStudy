@@ -120,6 +120,7 @@
 
 > 그러나 단순히 위와 같이 계산하여 구현할 경우, 이미지에 빈 구멍(hole)이 생기는 문제와 이미지가 잘리는 문제 등이 발생한다. 따라서 몇 가지 보완을 수행해야 한다.
 > * 회전 알고리즘의 보완
+
 > ```math
 > \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix} = \begin{bmatrix} \cos{\theta} & \sin{\theta} \\ -\sin{\theta} & \cos{\theta} \end{bmatrix} \begin{bmatrix} x_{new} - C_x_{new} \\ y_{old} - C_y_{new} \end{bmatrix} + \begin{bmatrix} C_x_{old} \\ C_y_{old} \end{bmatrix}
 >```
