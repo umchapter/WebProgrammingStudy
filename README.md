@@ -74,13 +74,15 @@
 
 #### 4-2. 가우시안 블러링
 > 가우시안 블러링 마스크는 이차원 정규분포에 따라 거리별로 가중치를 다르게 계산하는 가중평균 마스크이다. 산술평균 마스크에 비해 노이즈에 강하다는 장점이 있다.
-> $$\begin{align} & G_{xy} = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \\
-> & \omega=\frac{1}{\sum G_{xy}} \end{align}$$
+> ```math
+> \begin{align} & G_{xy} = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \\
+> & \omega=\frac{1}{\sum G_{xy}} \end{align}
+> ```
 > $x$와 $y$가 마스크의 좌표임에 주의하라. 여기서 $\sigma$를 통해 표준편차를 조정하여 가중치를 변화시킬 수 있다. $\omega$는 정규화를 위한 가중치로, 이미지가 지나치게 어두워지는 것을 방지한다.
 
 #### 4-3. 양방향 필터 블러링(Bilateral Filter -)
 > 양방향 필터 블러링은 엣지가 소실되는 블러링의 단점을 극복한 블러링 기법이다. 이미지가 매끄럽게 변하면서도 초점이 흐려지듯 뭉개진 것처럼 보이지 않는 효과가 있다.
-> $$ BF[I]_p = \frac{1}{W_p}\sum_{q\in S}G_{\sigma_s}(\parallel p-q \parallel)G_{\sigma_r}(|I_p-I_q|)I_q$$
+> $$BF[I]_p = \frac{1}{W_p}\sum_{q\in S}G_{\sigma_s}(\parallel p-q \parallel)G_{\sigma_r}(|I_p-I_q|)I_q$$
 > 축약하면 가우시안 블러를 적용하고, 다시 가우스 분포를 활용하여 주변 픽셀과의 차이를 가중평균하는 것으로 설명할 수 있다. $\sigma_r$이 커질수록 이미지는 매끄러워지고 수채화처럼 변하게 된다.
 
 ### 5. 경계선 검출(Edge Detection)
@@ -111,13 +113,13 @@
 ### 4. 회전
 > 회전 알고리즘은 아래와 같이 표현할 수 있다.
 > ```math
-\begin{bmatrix} x_{new} \\ y_{new} \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}
+> \begin{bmatrix} x_{new} \\ y_{new} \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}
 >```
 
 > 그러나 단순히 위와 같이 계산하여 구현할 경우, 이미지에 빈 구멍(hole)이 생기는 문제와 이미지가 잘리는 문제 등이 발생한다. 따라서 몇 가지 보완을 수행해야 한다.
 > * 회전 알고리즘의 보완
 > ```math
-\begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{new} -C_x_{new} \\ y_{old} - C_y_{new} \end{bmatrix} + \begin{bmatrix} C_x_{old} \\ C_y_{old} \end{bmatrix}
+> \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{new} -C_x_{new} \\ y_{old} - C_y_{new} \end{bmatrix} + \begin{bmatrix} C_x_{old} \\ C_y_{old} \end{bmatrix}
 >```
 
 > 위와 같이 역방향 사상을 고려하여 hole 문제를 해결한다. 다만 상기 $x,\;y$의 범위 문제에 유의하여야 한다.  
