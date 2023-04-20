@@ -122,7 +122,7 @@
 > * 회전 알고리즘의 보완
 
 > ```math
-> \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix} = \begin{bmatrix} \cos{\theta} & \sin{\theta} \\ -\sin{\theta} & \cos{\theta} \end{bmatrix} \begin{bmatrix} x_{new} - C_x_{new} \\ y_{old} - C_y_{new} \end{bmatrix} + \begin{bmatrix} C_x_{old} \\ C_y_{old} \end{bmatrix}
+> {\begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}} = {\begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix}} {\begin{bmatrix} x_{new} -C_x_{new} \\ y_{old} - C_y_{new} \end{bmatrix}} + {\begin{bmatrix} C_x_{old} \\ C_y_{old} \end{bmatrix}}
 >```
 
 > 위와 같이 역방향 사상을 고려하여 hole 문제를 해결한다. 다만 상기 $x,y$의 범위 문제에 유의하여야 한다.  
