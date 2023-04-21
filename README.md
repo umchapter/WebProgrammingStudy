@@ -13,7 +13,7 @@
 ### 1. 밝기 조절
 <img src="./assets/readme_images/02_bright.png" width="80%"/>
 
-> $$Output \, Image \, Pixel = Input \, Image \, Pixel \pm \alpha$$
+> $$Output \ Image \ Pixel = Input \ Image \ Pixel \pm \alpha$$
 
 <details>
 <summary>소스 코드 보기</summary>
@@ -44,7 +44,7 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 ### 2. 색상 반전
 <img src="./assets/readme_images/03_rev.png" width="80%"/>
 
-> $$Output  Image  Pixel = 255 - Input  Image  Pixel$$
+> $$Output \ Image \ Pixel = 255 - Input \ Image \ Pixel$$
 
 <details>
 <summary>소스 코드 보기</summary>
@@ -70,7 +70,7 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 <img src="./assets/readme_images/04_bw.png" width="80%"/>
 
 > ```math
->Output Image Pixel = \begin{pmatrix} 0 & Input  Image  Pixel \lt Threshold \\ 255 & Input  Image  Pixel \geq Threshold \end{pmatrix}
+>Output \ Image \ Pixel = \begin{pmatrix} 0 & Input \ Image \ Pixel \lt Threshold \\ 255 & Input \ Image \ Pixel \geq Threshold \end{pmatrix}
 >```
 
 <details>
@@ -179,9 +179,9 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 <img src="./assets/readme_images/05_hist_str.png" width="80%"/>
 
 > ```math
->Output \, Image \, Pixel = \frac {Input \, Image \, Pixel - Low}{High - Low} \times 255
+>Output \ Image \ Pixel = \frac {Input \ Image \ Pixel - Low}{High - Low} \times 255
 >```
-> 여기서 $High$와 $Low$는 각각 $Input \, Image$에서 가장 높은 값(밝기)과 낮은 값이다. 다시 말해 히스토그램 스트레칭은 픽셀에 대해 일종의 Min-Max Scaling을 수행한다. 이를 통해 분포를 고르게(스트레칭) 만들어 명암 대비가 높아진 뚜렷한 이미지를 얻을 수 있다.
+> 여기서 $High$와 $Low$는 각각 $Input \ Image$에서 가장 높은 값(밝기)과 낮은 값이다. 다시 말해 히스토그램 스트레칭은 픽셀에 대해 일종의 Min-Max Scaling을 수행한다. 이를 통해 분포를 고르게(스트레칭) 만들어 명암 대비가 높아진 뚜렷한 이미지를 얻을 수 있다.
 
 <details>
 <summary>소스 코드 보기</summary>
@@ -219,7 +219,7 @@ for(var i=0; i<inH; i++) {
 <img src="./assets/readme_images/06_end_in.png" width="80%"/>
 
 > ```math
-> Output \, Image \, Pixel = \begin{Bmatrix} 0& Input \, Image \, Pixel < Low\\ \\ \frac {Input \, Image \, Pixel - Low}{High - Low} & Low \leq Input \, Image \, Pixel \lt High \\ \\ 255 & High \leq Input \, Image \, Pixel \end{Bmatrix}
+> Output \ Image \ Pixel = \begin{Bmatrix} 0& Input \ Image \ Pixel < Low\\ \\ \frac {Input \ Image \ Pixel - Low}{High - Low} & Low \leq Input \ Image \ Pixel \lt High \\ \\ 255 & High \leq Input \ Image \ Pixel \end{Bmatrix}
 > ```
 > 엔드-인 탐색은 히스토그램 스트레칭을 수행할 이미지에 대해 일정 범위 밖의 밝기 값을 제거함으로써 히스토그램의 분포를 좀 더 균일하게 만드는 처리 기법이다. 즉 히스토그램 스트레칭에서는 이미지 내에서 결정된 High(Max)와 Low(Min)값을 사용하는 데 반해, 엔드-인 탐색에서는 사용자가 임의의 High와 Low의 임계값을 설정한다.
 
@@ -270,7 +270,7 @@ for(var i=0; i<inH; i++) {
 >>##### - 단계별 수행절차
 >>1. 픽셀의 명암값 $i$의 빈도수 히스토그램 생성 : $$hist[i] \quad (0 \leq i \lt 256)$$
 >>2. 각 명암값 $i$에서 $0 \sim i$까지의 누적도수 계산 : $$Sum[i]= \sum_{j=0}^{i} hist[j]$$
->>3. 2단계에서 구한 누적도수를 정규화 : $$n[i]=Sum[i] \times \frac{1}{N} \times I_{max}$$ <p style="text-align:center"> $(I_{max}$는 이미지에서 존재할 수 있는 가장 큰 밝기 값 &rarr; $255)$ <p/>
+>>3. 2단계에서 구한 누적도수를 정규화 : $$n[i]=Sum[i] \times \frac{1}{N} \times I_{max}$$ <p style="text-align:center"> $(I_{max}$는 이미지에서 존재할 수 있는 가장 큰 밝기 값 &rarr; $255)$ </p>
 
 <details>
 <summary>소스 코드 보기</summary>
