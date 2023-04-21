@@ -256,7 +256,7 @@ for(var i=0; i<inH; i++) {
 ##### - 단계별 수행절차
 >1. 픽셀의 명암값 $i$의 빈도수 히스토그램 생성 &rarr; $hist[i] \quad (0 \leq i \lt 256)$  
 >
->2. 각 명암값 $i$에서 $0 \sim i$까지의 누적도수 계산 &rarr; $Sum[i]=\sum_{j=0}^i hist[j]$  
+>2. 각 명암값 $i$에서 $0 \sim i$까지의 누적도수 계산 &rarr; $Sum[i]= \sum^i_{j=0} hist[j]$  
 > 
 >3. 2단계에서 구한 누적도수를 정규화 &rarr; $n[i]=Sum[i] \times \frac{1}{N} \times I_{max}$ $(I_{max}$ 는 이미지에서 존재할 수 있는 가장 큰 밝기 값 &rarr; $255)$
 
