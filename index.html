@@ -324,13 +324,11 @@
                 outImage[i] = new Array(outW);
             }
 
-            //
-
             var countArray = new Array(inH*inW);
 
-            for(var i=0; i<outH; i++) {
-                for(var j=0; j<outW; j++) {
-                    countArray[i*256 + j] = inImage[i][j];
+            for(var i=0; i<inH; i++) {
+                for(var j=0; j<inW; j++) {
+                    countArray[i*inH + j] = inImage[i][j];
                 }
             }
 
@@ -338,10 +336,12 @@
                 return a - b ;
             });
             
+            var median = Math.floor(inW*inH/2);
+            
             // 처리 알고리즘
             for(var i=0; i<outH; i++) {
                 for(var j=0; j<outW; j++) {
-                    if(inImage[i][j]>=countArray[Math.floor(inW*inH/2)]) {
+                    if(inImage[i][j]>=countArray[median]) {
                         outImage[i][j] = 255;
                     } else {
                         outImage[i][j] = 0;

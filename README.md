@@ -107,9 +107,9 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 ```javascript
 var countArray = new Array(inH*inW); // 중앙값 뽑기 위해 일렬(입력 이미지의 행*너비 크기) 배열 생성
 
-for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
-    for(var j=0; j<outW; j++) { // outW는 출력 이미지의 너비(열)
-        countArray[i*256 + j] = inImage[i][j]; // inImage[i][j]는 입력 이미지의 해당 좌표의 픽셀값
+for(var i=0; i<inH; i++) { // outH는 출력 이미지의 높이(행)
+    for(var j=0; j<inW; j++) { // outW는 출력 이미지의 너비(열)
+        countArray[i*inH + j] = inImage[i][j]; // inImage[i][j]는 입력 이미지의 해당 좌표의 픽셀값
     }
 }
 
@@ -117,10 +117,12 @@ countArray.sort(function(a, b) { // 정렬
     return a - b ;
 });
 
+var median = Math.floor(inW*inH/2); // 중간값
+
 // 처리 알고리즘
 for(var i=0; i<outH; i++) {
     for(var j=0; j<outW; j++) {
-        if(inImage[i][j]>=countArray[Math.floor(inW*inH/2)]) { // 정렬 이후 Math.floor(inW*inH/2) 번째 값보다 큰가?
+        if(inImage[i][j]>=countArray[median]) { // 정렬 이후 Math.floor(inW*inH/2) 번째 값보다 큰가?
             outImage[i][j] = 255;
         } else {
             outImage[i][j] = 0;
