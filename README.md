@@ -44,7 +44,7 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 ### 2. 색상 반전
 <img src="./assets/readme_images/03_rev.png" width="80%"/>
 
-> $$Output \, Image \, Pixel = 255 - Input \, Image \, Pixel$$
+> $$Output  Image  Pixel = 255 - Input  Image  Pixel$$
 
 <details>
 <summary>소스 코드 보기</summary>
@@ -69,7 +69,9 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 ### 3. 흑백 처리
 <img src="./assets/readme_images/04_bw.png" width="80%"/>
 
-> $$Output  Image  Pixel = \begin{pmatrix} 0 & Input  Image  Pixel \lt Threshold \\ 255 & Input  Image  Pixel \geq Threshold \end{pmatrix}$$
+> ```math
+>Output Image Pixel = \begin{pmatrix} 0 & Input  Image  Pixel \lt Threshold \\ 255 & Input  Image  Pixel \geq Threshold \end{pmatrix}
+>```
 
 <details>
 <summary>소스 코드 보기</summary>
