@@ -168,7 +168,9 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 > 일정 간격으로 구별된 데이터의 발생빈도를 막대그래프 형태로 나열한 것을 히스토그램이라 한다. 히스토그램을 통해 이미지의 특성을 쉽게 파악할 수 있으며, 이를 활용하여 이미지의 픽셀 값의 분포를 원하는 방향으로 조정할 수 있다.
 
 #### 4-1 히스토그램 스트레칭
-> $$ Output \, Image \, Pixel = \frac {Input \, Image \, Pixel - Low}{High - Low} \times 255 $$  
+> ```math
+>Output \, Image \, Pixel = \frac {Input \, Image \, Pixel - Low}{High - Low} \times 255
+>```
 > 여기서 $High$와 $Low$는 각각 $Input \, Image$에서 가장 높은 값(밝기)과 낮은 값이다. 다시 말해 히스토그램 스트레칭은 픽셀에 대해 일종의 Min-Max Scaling을 수행한다. 이를 통해 분포를 고르게(스트레칭) 만들어 명암 대비가 높아진 뚜렷한 이미지를 얻을 수 있다.
 
 <details>
