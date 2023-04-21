@@ -11,6 +11,8 @@
 > 화소점 처리는 원 화소의 값이나 위치를 바탕으로 단일 화소 값을 변경하는 기술이다.
 
 ### 1. 밝기 조절
+<img src="./assets/readme_images/02_bright.png" width="80%"/>
+
 > $$Output \, Image \, Pixel = Input \, Image \, Pixel \pm \alpha$$
 
 <details>
@@ -40,6 +42,8 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 </br>
 
 ### 2. 색상 반전
+<img src="./assets/readme_images/03_rev.png" width="80%"/>
+
 > $$Output \, Image \, Pixel = 255 - Input \, Image \, Pixel$$
 
 <details>
@@ -63,6 +67,8 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 </br>
 
 ### 3. 흑백 처리
+<img src="./assets/readme_images/04_bw.png" width="80%"/>
+
 > $$Output \, Image \, Pixel = \begin{pmatrix} 0 & Input \, Image \, Pixel \lt Threshold \\ 255 & Input \, Image \, Pixel \geq Threshold \end{pmatrix}$$
 
 <details>
@@ -168,6 +174,8 @@ for(var i=0; i<outH; i++) { // outH는 출력 이미지의 높이(행)
 > 일정 간격으로 구별된 데이터의 발생빈도를 막대그래프 형태로 나열한 것을 히스토그램이라 한다. 히스토그램을 통해 이미지의 특성을 쉽게 파악할 수 있으며, 이를 활용하여 이미지의 픽셀 값의 분포를 원하는 방향으로 조정할 수 있다.
 
 #### 4-1 히스토그램 스트레칭
+<img src="./assets/readme_images/05_hist_str.png" width="80%"/>
+
 > ```math
 >Output \, Image \, Pixel = \frac {Input \, Image \, Pixel - Low}{High - Low} \times 255
 >```
@@ -206,6 +214,8 @@ for(var i=0; i<inH; i++) {
 </br>
 
 #### 4-2. 엔드-인 탐색(End-In Search)
+<img src="./assets/readme_images/06_end_in.png" width="80%"/>
+
 > ```math
 > Output \, Image \, Pixel = \begin{Bmatrix} 0& Input \, Image \, Pixel < Low\\ \\ \frac {Input \, Image \, Pixel - Low}{High - Low} & Low \leq Input \, Image \, Pixel \lt High \\ \\ 255 & High \leq Input \, Image \, Pixel \end{Bmatrix}
 > ```
@@ -251,12 +261,14 @@ for(var i=0; i<inH; i++) {
 </br>
 
 #### 4-3. 히스토그램 평활화(Equalization)
+<img src="./assets/readme_images/07_hist_eq.png" width="80%"/>
+
 > 히스토그램 평활화는 히스토그램의 누적도수를 정규화하여 얻은 값을 통해 밝기 분포를 재분배하여 명암 대비를 최대화 하는 처리 기법이다.
 
-##### - 단계별 수행절차
->1. 픽셀의 명암값 $i$의 빈도수 히스토그램 생성 : $$hist[i] \quad (0 \leq i \lt 256)$$
->2. 각 명암값 $i$에서 $0 \sim i$까지의 누적도수 계산 : $$Sum[i]= \sum_{j=0}^{i} hist[j]$$
->3. 2단계에서 구한 누적도수를 정규화 : $$n[i]=Sum[i] \times \frac{1}{N} \times I_{max}$$ <p align=center>$(I_{max}$는 이미지에서 존재할 수 있는 가장 큰 밝기 값 &rarr; $255)$<p/>
+>>##### - 단계별 수행절차
+>>1. 픽셀의 명암값 $i$의 빈도수 히스토그램 생성 : $$hist[i] \quad (0 \leq i \lt 256)$$
+>>2. 각 명암값 $i$에서 $0 \sim i$까지의 누적도수 계산 : $$Sum[i]= \sum_{j=0}^{i} hist[j]$$
+>>3. 2단계에서 구한 누적도수를 정규화 : $$n[i]=Sum[i] \times \frac{1}{N} \times I_{max}$$ <p style="text-align:center"> $(I_{max}$는 이미지에서 존재할 수 있는 가장 큰 밝기 값 &rarr; $255)$ <p/>
 
 <details>
 <summary>소스 코드 보기</summary>
@@ -308,6 +320,8 @@ for(var i=0; i<outH; i++) {
 >( $k:$마스크의 크기, $ __I__:$컨볼루션의 대상이 되는 이미지의 영역, $ __M__:$마스크 행렬 )
 
 ### 1. 엠보싱(Embossing)
+<img src="./assets/readme_images/08_emb.png" width="80%"/>
+
 > 엠보싱은 입력 영상을 양각 형태로 보이게 하는 이미지 처리 기술이다.
 > * 엠보싱 마스크
 > ```math
@@ -398,6 +412,8 @@ for(var i=0; i<outH; i++) {
 </br>
 
 ### 3. 샤프닝(Sharpening)
+<img src="./assets/readme_images/09_sharp.png" width="80%"/>
+
 > 샤프닝이란 주변 픽셀과의 차이를 극대화 시켜 경계 부분의 명암비를 증가시키는 처리 기법을 말한다.
 > * 샤프닝 마스크
 > ```math
@@ -473,6 +489,8 @@ for(var i=0; i<outH; i++) {
 > * 블러링 마스크  
 블러링 마스크는 마스크 내부의 픽셀들의 평균을 구한다. 평균법은 산술평균, 가중평균 등 다양하다. 이번 프로젝트에서는 산술평균과 가우스 분포를 이용한 가중평균, 그리고 양방향 필터를 구현하였다.
 #### 4-1. 산술평균 블러링
+<img src="./assets/readme_images/10_nmm.png" width="80%"/>
+
 > 산술평균 블러링 마스크는 마스크의 총 합이 1이고, 마스크 사이즈의 제곱의 역수로 채워져 있다. 예시는 다음과 같다. 
 > ``` math
 > \begin{pmatrix} \frac{1}{9} & \frac{1}{9} & \frac{1}{9} \\ \\ \frac{1}{9} & \frac{1}{9} & \frac{1}{9} \\ \\ \frac{1}{9} & \frac{1}{9} & \frac{1}{9} \end{pmatrix}
@@ -529,9 +547,12 @@ for(var i=0; i<inH; i++) {
 </br>
 
 #### 4-2. 가우시안 블러링
+<img src="./assets/readme_images/11_gsm.png" width="80%"/>
+
 > 가우시안 블러링 마스크는 이차원 정규분포에 따라 거리별로 가중치를 다르게 계산하는 가중평균 마스크이다. 산술평균 마스크에 비해 노이즈에 강하다는 장점이 있다.
 > ```math
 > \begin{align} & G_{xy} = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \\
+\\
 > & \omega=\frac{1}{\sum G_{xy}} \end{align}
 > ```
 > $x$와 $y$가 마스크의 좌표임에 주의하라. 여기서 $\sigma$를 통해 표준편차를 조정하여 가중치를 변화시킬 수 있다. $\omega$는 정규화를 위한 가중치로, 이미지가 지나치게 어두워지는 것을 방지한다.
@@ -592,6 +613,8 @@ for(var i=0; i<inH; i++) {
 </br>
 
 #### 4-3. 양방향 필터 블러링(Bilateral Filter -)
+<img src="./assets/readme_images/12_bf.png" width="80%"/>
+
 > 양방향 필터 블러링은 엣지가 소실되는 블러링의 단점을 극복한 블러링 기법이다. 이미지가 매끄럽게 변하면서도 초점이 흐려지듯 뭉개진 것처럼 보이지 않는 효과가 있다.
 > ```math
 > BF[I]_p = \frac{1}{W_p}\sum_{q\in S}G_{\sigma_s}(\parallel p-q \parallel)G_{\sigma_r}(|I_p-I_q|)I_q
@@ -655,6 +678,8 @@ for(var i=0; i<inH; i++) {
 </br>
 
 ### 5. 경계선 검출(Edge Detection)
+<img src="./assets/readme_images/13_edge.png" width="80%"/>
+
 > 경계선 검출은 이미지에서 픽셀 값이 급격하게 변하는 경계선을 검출하는 이미지 처리 기법이다.
 > 본래 복잡하지만 상대적으로 우월한 Canny Edge Detection 기법을 구현하고 싶었으나, 시간 및 실력의 부족으로 완성하지 못했다. 이에 Sobel 마스크를 통해 경계선 검출기를 구현하였다.
 > * Sobel Mask
@@ -748,6 +773,8 @@ for(var i=0; i<inH; i++) {
 > 기하학적 변환은 이미지를 구성하는 화소의 공간적 위치를 재배치하는 과정을 의미한다.
 
 ### 1. 상하/좌우 반전
+<img src="./assets/readme_images/14_mrr.png" width="80%"/>
+
 > * 이미지 상하 반전 기능
 > $\text{이미지의 좌상단을 (0,0)으로 하고, 우하단을 (MaxRow, MaxCol)라 할 때, 임의의 픽셀의 좌표} (i,j) \text{에 대해,}$ 
 > $$\text{Output Image}(i,j) = \text{Input Image(MaxRow}-i,\; j)$$
@@ -782,6 +809,8 @@ for(var i=0; i<outH; i++) {
 </br>
 
 ### 2. 이미지의 축소
+<img src="./assets/readme_images/15_zi.png" width="80%"/>
+
 > 이미지의 축소는 출력 이미지의 크기에 맞춰 원본 이미지에서 적절한 분포로 픽셀을 뽑아내는 과정을 거친다. 이 과정에서 픽셀의 손실을 얼마나 수용할지, 그리고 주변 픽셀값을 얼만큼 반영할지에 따라 알고리즘이 결정된다.  
 > 우선 계단현상(aliasing)을 줄이기 위해 평균 블러링을 적용하고, 동시에 양방향 필터를 적용하여 이미지가 흐려지는 현상을 방지하였다. 그러나 계단현상이 일부 다시 나타나는 부작용이 있었다.
 
@@ -838,7 +867,12 @@ for(var i=0; i<outH; i++) {
 </br>
 
 ### 3. 이미지의 확대
-> 이미지의 확대는 적절한 분포로 원본 이미지의 픽셀을 출력 이미지에 배분한 뒤 빈 공간을 메우는 과정을 거친다. 이 과정에서 빈 공간을 메우는 방법에 따라 알고리즘이 결정된다.  
+<img src="./assets/readme_images/17_zo.png" width="80%"/>
+
+> 이미지의 확대는 적절한 분포로 원본 이미지의 픽셀을 출력 이미지에 배분한 뒤 빈 공간을 메우는 과정을 거친다. 이 과정에서 빈 공간을 메우는 방법에 따라 알고리즘이 결정된다. 
+
+<img src="./assets/readme_images/16_intp.png" width="80%"/>
+
 > 이번 프로젝트에서는 양선형 보간법(Bilateral Interpolate)을 적용하였다. 상기의 이미지를 통해 알 수 있듯이, 픽셀 간 거리에 따른 가중 평균을 활용하여 새로운 픽셀의 값을 찾는다. 이번 프로젝트에서는 우선 모든 행에 대해 보간법을 먼저 수행하고, 이후 열에 대해 보간법을 수행하는 방식으로 구현하였다.
 
 <details>
@@ -923,6 +957,8 @@ for(var i=0; i<outH; i++) {
 </br>
 
 ### 4. 회전
+<img src="./assets/readme_images/18_rtt.png" width="80%"/>
+
 > 회전 알고리즘은 아래와 같이 표현할 수 있다.
 > ```math
 >\begin{bmatrix} x_{new} \\ y_{new} \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x_{old} \\ y_{old} \end{bmatrix}
